@@ -1,88 +1,62 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import logo from "@/public/logo.png";
 import heroImg from "@/public/hero-img.png";
-import altRouteIcon from "@/public/alt_route.svg";
-import shoppingCartIcon from "@/public/shopping_cart.svg";
-import therapyIcon from "@/public/physical_therapy.svg";
-import approvalIcon from "@/public/approval.svg";
-import accountCircleIcon from "@/public/account_circle.svg";
-import cableIcon from "@/public/cable.svg";
-import cloudUploadIcon from "@/public/cloud_upload.svg";
+import { businesses, features, steps } from "./content";
 
-const businesses = [
-  {
-    title: "Food Vendors",
-    image: "/user1.jpg",
-  },
-  {
-    title: "Beauty & Cosmetics",
-    image: "/user2.jpg",
-  },
-  {
-    title: "Fashion",
-    image: "/user3.jpg",
-  },
-  {
-    title: "Jewelry",
-    image: "/user4.jpg",
-  },
-];
-
-const features = [
-  {
-    icon: altRouteIcon,
-    title: "Stop switching between apps",
-    description:
-      "See all your WhatsApp messages and Instagram DMs in a single, mobile-friendly dashboard without feeling overwhelmed.",
-  },
-  {
-    icon: shoppingCartIcon,
-    title: "Never miss a sale while you sleep",
-    description:
-      "Train Akira with your FAQs, delivery prices, and policies to reduce customer response time to under 30 seconds.",
-  },
-  {
-    icon: therapyIcon,
-    title: "Recover lost customers effortlessly",
-    description:
-      "Automatically follow up with customers who stop responding after 24 hours, ensuring you never miss a sales opportunity.",
-  },
-  {
-    icon: approvalIcon,
-    title: "Seamless Human Handoff",
-    description:
-      "Akira detects when a customer needs human attention, allowing you to pause the AI, take over the conversation, and return control whenever you are ready.",
-  },
-];
-
-const steps = [
-  {
-    icon: accountCircleIcon,
-    title: "Step 1",
-    description:
-      "Create your profile. Enter your business name, hours, and contact information.",
-  },
-  {
-    icon: cableIcon,
-    title: "Step 2",
-    description:
-      "Link your WhatsApp Business and Instagram securely via Meta's APIs, with no downloads needed.",
-  },
-  {
-    icon: cloudUploadIcon,
-    title: "Step 3",
-    description:
-      "Upload your FAQs. Give Akira your store policies and frequently used responses so it knows exactly how to talk to your customers.",
-  },
-];
+// shared background layer used by the hero and CTA sections.
+function SectionBackgroundImage({ dimmed = false }: { dimmed?: boolean }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0 block">
+      <Image
+        src={heroImg}
+        alt=""
+        aria-hidden="true"
+        width={1445}
+        height={788}
+        className={`h-full w-full object-cover ${dimmed ? "opacity-40" : "opacity-25"}`}
+      />
+    </div>
+  );
+}
 
 export default function Home() {
+  const [activeBusiness, setActiveBusiness] = useState(0);
+
+  // one duplicate slide so the carousel can loop cleanly back to the first item.
+  const carouselItems = [...businesses, businesses[0]];
+
+  // carousel changes every two seconds on mobile.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveBusiness((current) => current + 1);
+    }, 2000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // when the duplicate slide is reached, reset back to the first real slide.
+  useEffect(() => {
+    if (activeBusiness !== businesses.length) {
+      return;
+    }
+
+    const resetTimer = window.setTimeout(() => {
+      setActiveBusiness(0);
+    }, 500);
+
+    return () => window.clearTimeout(resetTimer);
+  }, [activeBusiness]);
+
   return (
-    <div className="min-h-screen bg-black text-center">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-sm">
+    <div className="bg-black">
+      {/* header */}
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-sm">
         <nav
           aria-label="Main navigation"
-          className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
+          className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
         >
           <a
             href="#top"
@@ -94,22 +68,22 @@ export default function Home() {
               alt="Arika logo"
               width={40}
               height={40}
-              className="h-auto w-auto"
+              className="h-8 w-auto"
               priority
             />
-            <span className="text-2xl font-bold text-white">Arika</span>
+            <span className="text-2xl font-bold text-[#e54d2e]">Arika</span>
           </a>
 
           <div className="flex items-center gap-3">
             <a
-              href="#login"
-              className="rounded-full bg-[#171717] px-4 py-2 text-sm font-semibold text-[#E54D2E] transition hover:bg-[#272727] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40 sm:px-5"
+              href="/auth/login"
+              className="btn-secondary py-3 px-4 text-sm lg:text-[15px] sm:px-7"
             >
               Log In
             </a>
             <a
-              href="#get-started"
-              className="rounded-full bg-[#E54D2E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#d84325] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40 sm:px-5"
+              href="/auth/register"
+              className="btn-primary py-3 px-8 text-sm lg:text-[15px] sm:px-9"
             >
               Get Started
             </a>
@@ -117,50 +91,99 @@ export default function Home() {
         </nav>
       </header>
 
-      <main id="top">
-        <section className="relative overflow-hidden bg-black">
-          <div className="mx-auto flex max-w-7xl flex-col items-center px-4 pb-16 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
-            <div className="z-10 flex max-w-4xl flex-col items-center gap-6 text-white">
-              <h1 className="mx-auto max-w-4xl text-center text-4xl font-bold leading-[110%] tracking-[-0.01em] sm:text-5xl lg:text-6xl xl:text-[72px]">
-                The AI employee every African small business can afford
-              </h1>
-              <p className="mx-auto max-w-3xl text-center text-base font-medium leading-[150%] tracking-[-0.01em] text-[#A3A3A3] md:text-[17px] lg:text-[18px]">
-                Stop managing customer messages manually and experiencing
-                business owner burnout. Akira automates your customer
-                conversations across WhatsApp Business and Instagram so you can
-                respond instantly, recover abandoned carts, and increase sales.
-              </p>
-              <a
-                href="#get-started"
-                className="inline-flex items-center justify-center rounded-full bg-[#E54D2E] px-8 py-4 text-base font-bold text-white transition-all duration-300 hover:bg-[#d84325] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40 active:scale-95"
-              >
-                Set up in under 10 minutes
-              </a>
-            </div>
-
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 hidden lg:block">
-              <Image
-                src={heroImg}
-                alt=""
-                aria-hidden="true"
-                width={1445}
-                height={788}
-                className="h-auto w-full object-cover opacity-25"
-                priority
-              />
-            </div>
+      {/* hero */}
+      <section className="hero flex flex-col justify-center">
+        <div className="flex min-h-[calc(100vh-4.75rem)] flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
+          <div className="z-10 flex max-w-4xl flex-col items-center gap-6 text-white">
+            <h1 className="text-center text-4xl font-bold leading-[110%] tracking-[-0.01em] sm:text-5xl lg:text-6xl">
+              The AI employee every African small business can afford
+            </h1>
+            <p className="max-w-3xl text-center font-medium leading-[150%] tracking-[-0.01em] text-[#A3A3A3] lg:text-[18px]">
+              Stop managing customer messages manually and experiencing business
+              owner burnout. Akira automates your customer conversations across
+              WhatsApp Business and Instagram so you can respond instantly,
+              recover abandoned carts, and increase sales.
+            </p>
+            <a
+              href="#get-started"
+              className="btn-primary inline-flex items-center justify-center px-8 py-4 text-base active:scale-95"
+            >
+              Set up in under 10 minutes
+            </a>
           </div>
-        </section>
 
+          <SectionBackgroundImage />
+        </div>
+      </section>
+
+      <main id="top">
+        {/* SME showcase section */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl rounded-4xl bg-neutral-100 px-6 py-12 sm:px-10 lg:px-14">
-            <h2 className="mx-auto max-w-3xl text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-black sm:text-4xl">
+          <div className="section-shell-l rounded-4xl lg:bg-neutral-100 flex flex-col justify-center items-center gap-14 py-16 px-0 lg:py-24 lg:px-8 ">
+            <h2 className="mx-auto text-3xl text-center font-extrabold leading-[120%] tracking-[-0.01em] text-black sm:text-4xl">
               Built specifically for Nigerian SMEs
             </h2>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* SME carousel for mobile screen */}
+            <div className="block w-full md:hidden">
+              <div
+                className="showcase-carousel overflow-x-hidden"
+                aria-label="SME showcase carousel"
+              >
+                <div
+                  className="flex"
+                  aria-live="polite"
+                  style={{
+                    transform: `translateX(-${activeBusiness * 100}%)`,
+                    transition:
+                      activeBusiness === businesses.length
+                        ? "none"
+                        : "transform 500ms ease-in-out",
+                  }}
+                >
+                  {carouselItems.map((business, index) => (
+                    <div
+                      key={`${business.title}-${index}`}
+                      className="relative min-w-full shrink-0 overflow-hidden rounded-[28px] bg-black"
+                    >
+                      <Image
+                        src={business.image}
+                        alt={`${business.title} showcase`}
+                        width={500}
+                        height={500}
+                        className="h-92 w-full object-cover sm:h-80"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
+                        <h3 className="font-bold text-white">
+                          {business.title}
+                        </h3>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-8">
+                {businesses.map((business, index) => (
+                  <button
+                    key={`${business.title}-dot`}
+                    type="button"
+                    aria-label={`Show ${business.title}`}
+                    className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+                      activeBusiness % businesses.length === index
+                        ? "bg-[#E54D2E]"
+                        : "bg-[#D4D4D4]"
+                    }`}
+                    onClick={() => setActiveBusiness(index)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* large/medium screen */}
+            <div className="hidden w-full gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
               {businesses.map((business) => (
-                <article
+                <div
                   key={business.title}
                   className="relative overflow-hidden rounded-[28px] bg-black"
                 >
@@ -169,27 +192,26 @@ export default function Home() {
                     alt={`${business.title} showcase`}
                     width={500}
                     height={500}
-                    className="h-72 w-full object-cover sm:h-80"
+                    className="h-88 w-full object-cover sm:h-80"
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
-                    <h3 className="text-lg font-bold text-white">
-                      {business.title}
-                    </h3>
+                    <h3 className="font-bold text-white">{business.title}</h3>
                   </div>
-                </article>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
+        {/* Feature highlights section */}
         <section className="relative overflow-hidden bg-black px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto max-w-7xl text-white">
-            <div className="mx-auto flex max-w-5xl flex-col items-center gap-12 text-center">
-              <h2 className="max-w-3xl text-3xl font-black leading-[120%] tracking-[-0.44px] text-white sm:text-4xl">
+          <div className="section-shell relative z-10 text-white">
+            <div className="mx-auto flex flex-col items-center justify-center gap-12">
+              <h2 className="text-3xl font-black text-center leading-[120%] tracking-[-0.44px] text-white sm:text-4xl">
                 Everything you need to sell faster, in one place.
               </h2>
 
-              <div className="grid w-full gap-4 md:grid-cols-2">
+              <div className="mx-auto grid w-full max-w-5xl gap-4 md:grid-cols-2">
                 {features.map((feature) => (
                   <article
                     key={feature.title}
@@ -219,21 +241,13 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 hidden lg:block">
-            <Image
-              src={heroImg}
-              alt=""
-              aria-hidden="true"
-              width={1445}
-              height={788}
-              className="h-auto w-full object-cover opacity-25"
-            />
-          </div>
+          <SectionBackgroundImage />
         </section>
 
+        {/* Step-by-step onboarding section */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto flex max-w-7xl flex-col items-center gap-11">
-            <h2 className="text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-[#0A0A0A] sm:text-4xl">
+          <div className="section-shell-l flex flex-col items-center gap-11">
+            <h2 className="text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-[#E54D2E] sm:text-[#0A0A0A] sm:text-4xl">
               Your new assistant is ready to work
             </h2>
 
@@ -255,7 +269,7 @@ export default function Home() {
                       />
                     </div>
                     <div className="flex flex-col gap-4">
-                      <h3 className="text-lg font-black text-[#0A0A0A]">
+                      <h3 className="text-lg font-bold text-[#0A0A0A]">
                         {step.title}
                       </h3>
                       <p className="text-[15px] leading-[150%] tracking-[-0.01em] text-[#737373]">
@@ -269,37 +283,30 @@ export default function Home() {
           </div>
         </section>
 
+        {/* CTA banner section */}
         <section className="relative overflow-hidden bg-black px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center text-white">
+          <div className="section-shell relative z-10 flex max-w-4xl flex-col items-center gap-4 text-center text-white">
             <h2 className="text-3xl font-black leading-[120%] tracking-[-0.44px] sm:text-4xl">
               Stop losing potential sales to delayed responses.
             </h2>
-            <p className="max-w-2xl text-base leading-7 tracking-[-0.18px] text-[#A3A3A3]">
+            <p className="max-w-2xl leading-7 tracking-[-0.18px] text-[#A3A3A3] lg:text-lg">
               Join the Nigerian business owners who are letting Akira handle the
               chat while they handle the growth.
             </p>
             <a
-              href="#get-started"
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#E54D2E] px-8 py-4 text-base font-bold text-white transition hover:bg-[#d84325] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40"
+              href="/auth/register"
+              className="btn-primary mt-2 inline-flex items-center justify-center px-8 py-4 text-base"
             >
               Get Started for Free
             </a>
           </div>
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 hidden lg:block">
-            <Image
-              src={heroImg}
-              alt=""
-              aria-hidden="true"
-              width={1445}
-              height={788}
-              className="h-auto w-full object-cover opacity-40"
-            />
-          </div>
+          <SectionBackgroundImage dimmed />
         </section>
 
-        <footer className="bg-white px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
+        {/* Footer navigation */}
+        <footer className="bg-white px-4 py-12 sm:px-6 lg:px-8 lg:py-6">
+          <div className="section-shell-l flex items-center justify-between gap-6 text-center sm:text-left">
             <a
               href="#top"
               className="flex items-center gap-1.5"
@@ -310,28 +317,19 @@ export default function Home() {
                 alt="Arika logo"
                 width={40}
                 height={40}
-                className="h-auto w-auto"
+                className="h-8 w-auto"
               />
-              <span className="text-2xl font-bold text-black">Arika</span>
+              <span className="text-2xl font-bold text-[#e54d2e]">Arika</span>
             </a>
 
-            <div className="flex flex-col gap-3 text-sm font-bold text-[#0A0A0A] sm:flex-row sm:items-center sm:gap-8">
-              <a
-                href="#support"
-                className="hover:text-[#E54D2E] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40 rounded-full"
-              >
+            <div className="flex flex-col gap-3 text-sm font-bold text-[#0A0A0A] text-right sm:flex-row sm:items-center sm:gap-8">
+              <a href="#support" className="footer-link">
                 Support / Contact Us
               </a>
-              <a
-                href="#privacy"
-                className="hover:text-[#E54D2E] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40 rounded-full"
-              >
+              <a href="#privacy" className="footer-link">
                 Privacy Policy
               </a>
-              <a
-                href="#terms"
-                className="hover:text-[#E54D2E] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#E54D2E]/40 rounded-full"
-              >
+              <a href="#terms" className="footer-link">
                 Terms of Service
               </a>
             </div>

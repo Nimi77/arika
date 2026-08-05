@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arika
 
-## Getting Started
+Arika is a lightweight AI customer-support web app for African small businesses. The product is designed to help merchants answer customer questions faster, recover lost sales, and keep conversations organized across the channels they already use.
 
-First, run the development server:
+## What the project is about
+
+Arika helps business owners reduce manual customer messaging and response delays by presenting a polished, single-dashboard experience for customer conversations. The landing page is meant to explain the product clearly, show the value proposition, and direct users into the auth flow.
+
+## Key things to know
+
+- This project is built with Next.js and the App Router.
+- Static brand assets, icons, and images live in the public folder.
+- The homepage uses reusable section content from the home content file.
+- Auth pages are available under `/auth/login` and `/auth/register`.
+
+## Getting started
+
+### Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Run the local app
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Then open http://localhost:3000 in your browser.
 
-## Learn More
+### Create a production build
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- app/(home)/page.tsx — landing page composition and responsive section layout
+- app/(home)/content.ts — homepage data used for features, steps, and showcase cards
+- app/auth/login/page.tsx — login experience
+- app/auth/register/page.tsx — registration experience
+- app/auth/layout.tsx — shared auth layout wrapper
+- public/ — logo, background images, and SVG icon assets
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
