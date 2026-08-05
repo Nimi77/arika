@@ -7,7 +7,7 @@ import heroImg from "@/public/hero-img.png";
 import { businesses, features, steps } from "./content";
 
 // shared background layer used by the hero and CTA sections.
-function SectionBackgroundImage({ dimmed = false }: { dimmed?: boolean }) {
+function SectionBackgroundImage() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0 block">
       <Image
@@ -16,7 +16,7 @@ function SectionBackgroundImage({ dimmed = false }: { dimmed?: boolean }) {
         aria-hidden="true"
         width={1445}
         height={788}
-        className={`h-full w-full object-cover ${dimmed ? "opacity-40" : "opacity-25"}`}
+        className="h-full w-full object-cover opacity-40"
       />
     </div>
   );
@@ -92,8 +92,8 @@ export default function Home() {
       </header>
 
       {/* hero */}
-      <section className="hero flex flex-col justify-center">
-        <div className="flex min-h-[calc(100vh-4.75rem)] flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
+      <section className="hero relative overflow-hidden">
+        <div className="flex min-h-[calc(100svh-4.75rem)] flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
           <div className="z-10 flex max-w-4xl flex-col items-center gap-6 text-white">
             <h1 className="text-center text-4xl font-bold leading-[110%] tracking-[-0.01em] sm:text-5xl lg:text-6xl">
               The AI employee every African small business can afford
@@ -301,7 +301,7 @@ export default function Home() {
             </a>
           </div>
 
-          <SectionBackgroundImage dimmed />
+          <SectionBackgroundImage />
         </section>
 
         {/* Footer navigation */}
