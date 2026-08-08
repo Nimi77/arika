@@ -95,7 +95,7 @@ export default function Home() {
       <section className="hero relative overflow-hidden">
         <div className="flex min-h-[calc(100svh-4.75rem)] flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
           <div className="z-10 flex max-w-4xl flex-col items-center gap-6 text-white">
-            <h1 className="text-center text-4xl font-bold leading-[110%] tracking-[-0.01em] sm:text-5xl lg:text-6xl">
+            <h1 className="text-center text-white text-4xl font-bold leading-[110%] tracking-[-0.01em] sm:text-5xl lg:text-6xl">
               The AI employee every African small business can afford
             </h1>
             <p className="max-w-3xl text-center font-medium leading-[150%] tracking-[-0.01em] text-[#A3A3A3] lg:text-[18px]">
