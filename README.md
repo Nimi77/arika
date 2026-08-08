@@ -42,5 +42,12 @@ bun run build
 - app/auth/login/page.tsx — login experience
 - app/auth/register/page.tsx — registration experience
 - app/auth/layout.tsx — shared auth layout wrapper
+- app/auth/components/Authform.tsx - authentication form to collect data
+- app/auth/components/AuthInput.tsx - authentication input to take name and email data 
+- app/auth/components/FormBanner.tsx - authentication error messages
+- app/auth/components/AuthInput.tsx - authentication input component for password and confirm password
+- app/auth/components/SocialAuthButton - authentication of apple and google
+- app/auth/verify-email/page.tsx - email verification experience
+- app/auth/profile-setup/page.tsx - business social profile setup
 - public/ — logo, background images, and SVG icon assets
-
+- 
