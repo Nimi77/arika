@@ -1,10 +1,12 @@
 "use client";
 
-import Image from "next/image";
+import { businesses, features, steps } from "./content";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import logo from "@/public/logo.png";
 import heroImg from "@/public/hero-img.png";
-import { businesses, features, steps } from "./content";
+
+import { MoreVertical, X } from "lucide-react";
 
 // shared background layer used by the hero and CTA sections.
 function SectionBackgroundImage() {
@@ -24,6 +26,7 @@ function SectionBackgroundImage() {
 
 export default function Home() {
   const [activeBusiness, setActiveBusiness] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // one duplicate slide so the carousel can loop cleanly back to the first item.
   const carouselItems = [...businesses, businesses[0]];
@@ -50,10 +53,31 @@ export default function Home() {
     return () => window.clearTimeout(resetTimer);
   }, [activeBusiness]);
 
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    const handleMenuKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleMenuKeyDown);
+    return () => document.removeEventListener("keydown", handleMenuKeyDown);
+  }, [isMenuOpen]);
+
   return (
     <div className="bg-black">
       {/* header */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-sm">
+      <header
+        className={`sticky top-0 z-50 backdrop-blur-sm transition-[background-color,box-shadow] duration-300 motion-reduce:transition-none ${
+          isMenuOpen
+            ? "bg-black shadow-[0_12px_32px_rgba(0,0,0,0.4)]"
+            : "bg-black/80"
+        }`}
+      >
         <nav
           aria-label="Main navigation"
           className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
@@ -71,30 +95,75 @@ export default function Home() {
               className="h-8 w-auto"
               priority
             />
-            <span className="text-2xl font-bold text-[#e54d2e]">Arika</span>
+            <span className="text-2xl font-bold text-(--color-accent)">
+              Arika
+            </span>
           </a>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center sm:gap-3">
             <a
               href="/auth/login"
-              className="btn-secondary py-3 px-4 text-sm lg:text-[15px] sm:px-7"
+              className="hidden px-4 py-3 text-sm sm:inline-flex lg:px-7 lg:text-[15px]"
             >
               Log In
             </a>
             <a
               href="/auth/register"
-              className="btn-primary py-3 px-8 text-sm lg:text-[15px] sm:px-9"
+              className="btn-primary px-5 py-3 text-sm sm:px-9 lg:px-8 lg:text-[15px]"
             >
               Get Started
             </a>
+
+            {/* mobile screen menu button */}
+            <button
+              type="button"
+              className={`ml-2 inline-flex h-10 w-9 items-center justify-center rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:hidden ${
+                isMenuOpen
+                  ? "text-(--color-accent)"
+                  : "hover:border-white/30 hover:bg-white/10"
+              }`}
+              aria-label={
+                isMenuOpen ? "Close navigation menu" : "Open navigation menu"
+              }
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-navigation"
+              onClick={() => setIsMenuOpen((open) => !open)}
+            >
+              {isMenuOpen ? (
+                <X size={21} strokeWidth={2.5} aria-hidden="true" />
+              ) : (
+                <MoreVertical size={21} strokeWidth={2.5} aria-hidden="true" />
+              )}
+            </button>
           </div>
         </nav>
+
+        <div
+          id="mobile-navigation"
+          aria-label="Mobile navigation links"
+          aria-hidden={!isMenuOpen}
+          inert={!isMenuOpen}
+          className={`overflow-hidden border-t border-white/10 bg-black/95 shadow-[0_12px_32px_rgba(0,0,0,0.4)] transition-[max-height,opacity,transform,margin] duration-300 ease-out motion-reduce:transition-none sm:hidden ${
+            isMenuOpen
+              ? "max-h-24 translate-y-0 opacity-100"
+              : "pointer-events-none max-h-0 -translate-y-2 opacity-0"
+          }`}
+        >
+          <div className="p-2">
+            <a
+              href="/auth/login"
+              className="flex items-center rounded-xl px-4 py-4 text-sm font-medium text-white/80 transition-colors duration-200 hover:text-(--color-accent-hover)"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Log In
+            </a>
+          </div>
+        </div>
       </header>
 
       {/* hero */}
       <section className="hero relative overflow-hidden">
         <div className="flex min-h-[calc(100svh-4.75rem)] flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
-          <div className="z-10 flex max-w-4xl flex-col items-center gap-6 text-white">
+          <div className="z-10 flex max-w-4xl flex-col items-center gap-6">
             <h1 className="text-center text-white text-4xl font-bold leading-[110%] tracking-[-0.01em] sm:text-5xl lg:text-6xl">
               The AI employee every African small business can afford
             </h1>
@@ -120,7 +189,10 @@ export default function Home() {
         {/* SME showcase section */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
           <div className="section-shell-l rounded-4xl lg:bg-neutral-100 flex flex-col justify-center items-center gap-14 py-16 px-0 lg:py-24 lg:px-8 ">
-            <h2 className="mx-auto text-3xl text-center font-extrabold leading-[120%] tracking-[-0.01em] text-black sm:text-4xl">
+            <h2
+              id="sme-showcase-heading"
+              className="mx-auto text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-black sm:text-4xl"
+            >
               Built specifically for Nigerian SMEs
             </h2>
 
@@ -128,7 +200,9 @@ export default function Home() {
             <div className="block w-full md:hidden">
               <div
                 className="showcase-carousel overflow-x-hidden"
+                role="region"
                 aria-label="SME showcase carousel"
+                aria-labelledby="sme-showcase-heading"
               >
                 <div
                   className="flex"
@@ -171,9 +245,14 @@ export default function Home() {
                     aria-label={`Show ${business.title}`}
                     className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
                       activeBusiness % businesses.length === index
-                        ? "bg-[#E54D2E]"
-                        : "bg-[#D4D4D4]"
+                        ? "bg-(--color-accent)"
+                        : "bg-(--color-btn-secondary-bg-hover)"
                     }`}
+                    aria-current={
+                      activeBusiness % businesses.length === index
+                        ? "true"
+                        : undefined
+                    }
                     onClick={() => setActiveBusiness(index)}
                   />
                 ))}
@@ -247,7 +326,7 @@ export default function Home() {
         {/* Step-by-step onboarding section */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="section-shell-l flex flex-col items-center gap-11">
-            <h2 className="text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-[#E54D2E] sm:text-[#0A0A0A] sm:text-4xl">
+            <h2 className="text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-(--color-accent) sm:text-[#0A0A0A] sm:text-4xl">
               Your new assistant is ready to work
             </h2>
 
@@ -319,7 +398,9 @@ export default function Home() {
                 height={40}
                 className="h-8 w-auto"
               />
-              <span className="text-2xl font-bold text-[#e54d2e]">Arika</span>
+              <span className="text-2xl font-bold text-(--color-accent)">
+                Arika
+              </span>
             </a>
 
             <div className="flex flex-col gap-3 text-sm font-bold text-[#0A0A0A] text-right sm:flex-row sm:items-center sm:gap-8">

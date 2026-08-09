@@ -131,7 +131,7 @@ export default function RegisterPage() {
   return (
     <div className="section-shell flex flex-col items-center  px-4 py-10 sm:py-16">
       <Image src={logo} alt="Arika" width={70} height={70} priority />
-      <h1 className="mt-6 text-2xl text-[var(--color-text)] sm:text-3xl font-bold text-center">
+      <h1 className="mt-6 text-2xl text-(--color-text) sm:text-3xl font-bold text-center">
         Create your Arika Account
       </h1>
       <p className="mt-2 text-sm text-neutral-500 text-center">
@@ -221,11 +221,14 @@ export default function RegisterPage() {
             error={errors.confirmPassword}
           />
 
-          <ul className="text-xs text-neutral-500 flex flex-col gap-1 -mt-2">
+          <ul
+            aria-label="Password requirements"
+            className="text-xs text-neutral-500 flex flex-col gap-1 -mt-2"
+          >
             {REQUIREMENTS.map((r) => (
               <li
                 key={r.label}
-                className={r.test(password) ? "text-[var(--color-accent)]" : ""}
+                className={r.test(password) ? "text-(--color-accent)" : ""}
               >
                 • {r.label}
               </li>
@@ -245,7 +248,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            className="footer-link font-medium text-[var(--color-accent)]"
+            className="footer-link font-medium text-(--color-accent)"
           >
             Login
           </Link>

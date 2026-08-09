@@ -37,10 +37,10 @@ export default function AuthInput({
         placeholder={placeholder}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`rounded-full px-3 py-2 bg-neutral-800 hover:bg-neutral-900 outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)] transition-colors ${
+        className={`rounded-full px-3 py-2 bg-neutral-800 hover:bg-neutral-900 outline-none focus-visible:ring-1 focus-visible:ring-(--color-accent) transition-colors ${
           error
-            ? "border border-[var(--color-accent)] text-[var(--color-accent)]"
-            : "border border-transparent text-[var(--color-text)]"
+            ? "border border-(--color-accent) text-(--color-accent)"
+            : "border border-transparent text-(--color-text)"
         }`}
       />
       {error && showErrorMessage && (
