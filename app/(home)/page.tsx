@@ -1,14 +1,15 @@
 "use client";
 
-import { businesses, features, steps } from "./content";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import heroImg from "@/public/hero-img.png";
+import { Menu } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { AnimatePresence, motion } from "motion/react";
+import { businesses, features, steps } from "./content";
 
-import { MoreVertical, X } from "lucide-react";
-
-// shared background layer used by the hero and CTA sections.
+// Shared background layer used by the hero and CTA sections.
 function SectionBackgroundImage() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0 block">
@@ -70,21 +71,15 @@ export default function Home() {
 
   return (
     <div className="bg-black">
-      {/* header */}
-      <header
-        className={`sticky top-0 z-50 backdrop-blur-sm transition-[background-color,box-shadow] duration-300 motion-reduce:transition-none ${
-          isMenuOpen
-            ? "bg-black shadow-[0_12px_32px_rgba(0,0,0,0.4)]"
-            : "bg-black/80"
-        }`}
-      >
+      {/* Header */}
+      <header className="sticky top-0 z-60 bg-black/80 backdrop-blur-sm">
         <nav
           aria-label="Main navigation"
-          className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
+          className="relative flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
         >
           <a
             href="#top"
-            className="flex items-center gap-1.5"
+            className="relative z-70 flex items-center gap-1.5"
             aria-label="Arika home"
           >
             <Image
@@ -99,65 +94,106 @@ export default function Home() {
               Arika
             </span>
           </a>
-          <div className="flex items-center sm:gap-3">
+          {/* Desktop navigation */}
+          <div className="flex items-center gap-3">
             <a
               href="/auth/login"
-              className="hidden px-4 py-3 text-sm sm:inline-flex lg:px-7 lg:text-[15px]"
+              className="hidden btn-secondary px-7 py-3 text-sm sm:inline-flex lg:text-[15px]"
             >
               Log In
             </a>
             <a
               href="/auth/register"
-              className="btn-primary px-5 py-3 text-sm sm:px-9 lg:px-8 lg:text-[15px]"
+              className="hidden btn-primary px-8 py-3 text-sm sm:inline-flex lg:text-[15px]"
             >
               Get Started
             </a>
 
-            {/* mobile screen menu button */}
-            <button
-              type="button"
-              className={`ml-2 inline-flex h-10 w-9 items-center justify-center rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:hidden ${
-                isMenuOpen
-                  ? "text-(--color-accent)"
-                  : "hover:border-white/30 hover:bg-white/10"
-              }`}
-              aria-label={
-                isMenuOpen ? "Close navigation menu" : "Open navigation menu"
-              }
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-navigation"
-              onClick={() => setIsMenuOpen((open) => !open)}
-            >
-              {isMenuOpen ? (
-                <X size={21} strokeWidth={2.5} aria-hidden="true" />
-              ) : (
-                <MoreVertical size={21} strokeWidth={2.5} aria-hidden="true" />
-              )}
-            </button>
+            {/* Mobile navigation dialog */}
+            <Dialog.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <Dialog.Trigger asChild>
+                <button
+                  type="button"
+                  className={`relative z-70 inline-flex items-center justify-center rounded-full bg-(--color-surface) p-3 text-white transition-colors duration-200 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) sm:hidden ${
+                    isMenuOpen ? "invisible" : "visible"
+                  }`}
+                  aria-label="Open navigation menu"
+                >
+                  <Menu size={22} strokeWidth={2.5} aria-hidden="true" />
+                </button>
+              </Dialog.Trigger>
+              <AnimatePresence>
+                {isMenuOpen && (
+                  <Dialog.Portal forceMount>
+                    {/* Keeps the brand header above the blurred page overlay */}
+                    <Dialog.Overlay asChild forceMount>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-md sm:hidden"
+                      />
+                    </Dialog.Overlay>
+                    {/* Slides the mobile actions in from the right. */}
+                    <Dialog.Content asChild forceMount>
+                      <motion.div
+                        initial={{ x: "100%" }}
+                        animate={{ x: 0 }}
+                        exit={{ x: "100%" }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                        className="fixed top-20 right-8 z-50 flex w-6/12 flex-col gap-2 rounded-3xl border-[0.5px] border-[#404040] bg-black px-4 py-6 shadow-2xl outline-none sm:hidden"
+                      >
+                        {/* Accessible dialog title and description. */}
+                        <Dialog.Title className="sr-only">
+                          Arika mobile navigation
+                        </Dialog.Title>
+                        <Dialog.Description className="sr-only">
+                          Mobile navigation menu with login and registration
+                          options.
+                        </Dialog.Description>
+                        {/* Mobile menu actions */}
+                        <div className="mobile-menu-buttons">
+                          <Dialog.Close asChild>
+                            <a
+                              href="/auth/login"
+                              className="mobile-menu-button bg-(--color-surface) text-white hover:bg-[#262626]"
+                            >
+                              Log In
+                            </a>
+                          </Dialog.Close>
+
+                          <Dialog.Close asChild>
+                            <a
+                              href="/auth/register"
+                              className="mobile-menu-button bg-(--color-accent) hover:bg-(--color-accent-hover)"
+                            >
+                              Get Started
+                            </a>
+                          </Dialog.Close>
+
+                          <Dialog.Close asChild>
+                            <button
+                              type="button"
+                              className="mobile-menu-button bg-(--color-surface) text-[#525252] hover:bg-[#262626] hover:text-(--color-text-secondary)"
+                              aria-label="Close navigation menu"
+                            >
+                              Close
+                            </button>
+                          </Dialog.Close>
+                        </div>
+                      </motion.div>
+                    </Dialog.Content>
+                  </Dialog.Portal>
+                )}
+              </AnimatePresence>
+            </Dialog.Root>
           </div>
         </nav>
-
-        <div
-          id="mobile-navigation"
-          aria-label="Mobile navigation links"
-          aria-hidden={!isMenuOpen}
-          inert={!isMenuOpen}
-          className={`overflow-hidden border-t border-white/10 bg-black/95 shadow-[0_12px_32px_rgba(0,0,0,0.4)] transition-[max-height,opacity,transform,margin] duration-300 ease-out motion-reduce:transition-none sm:hidden ${
-            isMenuOpen
-              ? "max-h-24 translate-y-0 opacity-100"
-              : "pointer-events-none max-h-0 -translate-y-2 opacity-0"
-          }`}
-        >
-          <div className="p-2">
-            <a
-              href="/auth/login"
-              className="flex items-center rounded-xl px-4 py-4 text-sm font-medium text-white/80 transition-colors duration-200 hover:text-(--color-accent-hover)"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Log In
-            </a>
-          </div>
-        </div>
       </header>
 
       {/* hero */}
@@ -184,7 +220,6 @@ export default function Home() {
           <SectionBackgroundImage />
         </div>
       </section>
-
       <main id="top">
         {/* SME showcase section */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
