@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import logo from "@/public/logo.png";
+import logo from "@/public/logo.svg";
 import heroImg from "@/public/hero-img.png";
 import { Menu } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "motion/react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { businesses, features, steps } from "./content";
+import Link from "next/link";
 
 // Shared background layer used by the hero and CTA sections.
 function SectionBackgroundImage() {
@@ -29,31 +32,6 @@ export default function Home() {
   const [activeBusiness, setActiveBusiness] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // one duplicate slide so the carousel can loop cleanly back to the first item.
-  const carouselItems = [...businesses, businesses[0]];
-
-  // carousel changes every two seconds on mobile.
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveBusiness((current) => current + 1);
-    }, 2000);
-
-    return () => window.clearInterval(timer);
-  }, []);
-
-  // when the duplicate slide is reached, reset back to the first real slide.
-  useEffect(() => {
-    if (activeBusiness !== businesses.length) {
-      return;
-    }
-
-    const resetTimer = window.setTimeout(() => {
-      setActiveBusiness(0);
-    }, 500);
-
-    return () => window.clearTimeout(resetTimer);
-  }, [activeBusiness]);
-
   useEffect(() => {
     if (!isMenuOpen) {
       return;
@@ -68,6 +46,41 @@ export default function Home() {
     document.addEventListener("keydown", handleMenuKeyDown);
     return () => document.removeEventListener("keydown", handleMenuKeyDown);
   }, [isMenuOpen]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "start",
+    },
+    [
+      Autoplay({
+        delay: 2000,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      }),
+    ],
+  );
+
+  // Keep the active pagination dot synchronized with Embla.
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const updateActiveBusiness = () => {
+      setActiveBusiness(emblaApi.selectedScrollSnap());
+    };
+
+    updateActiveBusiness();
+
+    emblaApi.on("select", updateActiveBusiness);
+
+    return () => {
+      emblaApi.off("select", updateActiveBusiness);
+    };
+  }, [emblaApi]);
+
+  const scrollToBusiness = (index: number) => {
+    emblaApi?.scrollTo(index);
+  };
 
   return (
     <div className="bg-black">
@@ -96,25 +109,25 @@ export default function Home() {
           </a>
           {/* Desktop navigation */}
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/auth/login"
-              className="hidden btn-secondary px-7 py-3 text-sm sm:inline-flex lg:text-[15px]"
+              className="hidden btn-secondary px-7 py-3 text-sm sm:inline-flex"
             >
               Log In
-            </a>
-            <a
+            </Link>
+            <Link
               href="/auth/register"
-              className="hidden btn-primary px-8 py-3 text-sm sm:inline-flex lg:text-[15px]"
+              className="hidden btn-primary px-8 py-3 text-sm sm:inline-flex"
             >
               Get Started
-            </a>
+            </Link>
 
             {/* Mobile navigation dialog */}
             <Dialog.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <Dialog.Trigger asChild>
                 <button
                   type="button"
-                  className={`relative z-70 inline-flex items-center justify-center rounded-full bg-(--color-surface) p-3 text-white transition-colors duration-200 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) sm:hidden ${
+                  className={`relative z-70 inline-flex items-center justify-center rounded-full bg-(--color-surface) p-3 text-white transition-colors duration-200 hover:bg-white/20 sm:hidden ${
                     isMenuOpen ? "invisible" : "visible"
                   }`}
                   aria-label="Open navigation menu"
@@ -159,21 +172,21 @@ export default function Home() {
                         {/* Mobile menu actions */}
                         <div className="mobile-menu-buttons">
                           <Dialog.Close asChild>
-                            <a
+                            <Link
                               href="/auth/login"
                               className="mobile-menu-button bg-(--color-surface) text-white hover:bg-[#262626]"
                             >
                               Log In
-                            </a>
+                            </Link>
                           </Dialog.Close>
 
                           <Dialog.Close asChild>
-                            <a
+                            <Link
                               href="/auth/register"
                               className="mobile-menu-button bg-(--color-accent) hover:bg-(--color-accent-hover)"
                             >
                               Get Started
-                            </a>
+                            </Link>
                           </Dialog.Close>
 
                           <Dialog.Close asChild>
@@ -196,7 +209,7 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* hero */}
+      {/* HERO SECTION */}
       <section className="hero relative overflow-hidden">
         <div className="flex min-h-[calc(100svh-4.75rem)] flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
           <div className="z-10 flex max-w-4xl flex-col items-center gap-6">
@@ -209,21 +222,21 @@ export default function Home() {
               WhatsApp Business and Instagram so you can respond instantly,
               recover abandoned carts, and increase sales.
             </p>
-            <a
-              href="#get-started"
+            <Link
+              href="/auth/register"
               className="btn-primary inline-flex items-center justify-center px-8 py-4 text-base active:scale-95"
             >
               Set up in under 10 minutes
-            </a>
+            </Link>
           </div>
 
           <SectionBackgroundImage />
         </div>
       </section>
       <main id="top">
-        {/* SME showcase section */}
+        {/* SME SHOWCASE SECTION */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
-          <div className="section-shell-l rounded-4xl lg:bg-neutral-100 flex flex-col justify-center items-center gap-14 py-16 px-0 lg:py-24 lg:px-8 ">
+          <div className="section-shell-l flex flex-col items-center justify-center gap-14 rounded-4xl px-0 py-16 lg:bg-neutral-100 lg:px-8 lg:py-24">
             <h2
               id="sme-showcase-heading"
               className="mx-auto text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-black sm:text-4xl"
@@ -231,28 +244,21 @@ export default function Home() {
               Built specifically for Nigerian SMEs
             </h2>
 
-            {/* SME carousel for mobile screen */}
+            {/* MOBILE SME CAROUSEL */}
             <div className="block w-full md:hidden">
+              {/* Embla viewport */}
               <div
-                className="showcase-carousel overflow-x-hidden"
+                ref={emblaRef}
+                className="showcase-carousel overflow-hidden"
                 role="region"
                 aria-label="SME showcase carousel"
                 aria-labelledby="sme-showcase-heading"
               >
-                <div
-                  className="flex"
-                  aria-live="polite"
-                  style={{
-                    transform: `translateX(-${activeBusiness * 100}%)`,
-                    transition:
-                      activeBusiness === businesses.length
-                        ? "none"
-                        : "transform 500ms ease-in-out",
-                  }}
-                >
-                  {carouselItems.map((business, index) => (
+                {/* Embla container */}
+                <div className="flex">
+                  {businesses.map((business) => (
                     <div
-                      key={`${business.title}-${index}`}
+                      key={business.title}
                       className="relative min-w-full shrink-0 overflow-hidden rounded-[28px] bg-black"
                     >
                       <Image
@@ -262,6 +268,8 @@ export default function Home() {
                         height={500}
                         className="h-92 w-full object-cover sm:h-80"
                       />
+
+                      {/* Image gradient */}
                       <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
                         <h3 className="font-bold text-white">
                           {business.title}
@@ -272,29 +280,26 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* CAROUSEL PAGINATION */}
               <div className="flex items-center justify-center gap-2 pt-8">
                 {businesses.map((business, index) => (
                   <button
                     key={`${business.title}-dot`}
                     type="button"
                     aria-label={`Show ${business.title}`}
+                    aria-current={activeBusiness === index ? "true" : undefined}
+                    onClick={() => scrollToBusiness(index)}
                     className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-                      activeBusiness % businesses.length === index
+                      activeBusiness === index
                         ? "bg-(--color-accent)"
                         : "bg-(--color-btn-secondary-bg-hover)"
                     }`}
-                    aria-current={
-                      activeBusiness % businesses.length === index
-                        ? "true"
-                        : undefined
-                    }
-                    onClick={() => setActiveBusiness(index)}
                   />
                 ))}
               </div>
             </div>
 
-            {/* large/medium screen */}
+            {/* TABLET / DESKTOP SME SHOWCASE */}
             <div className="hidden w-full gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
               {businesses.map((business) => (
                 <div
@@ -308,6 +313,8 @@ export default function Home() {
                     height={500}
                     className="h-88 w-full object-cover sm:h-80"
                   />
+
+                  {/* Image gradient */}
                   <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
                     <h3 className="font-bold text-white">{business.title}</h3>
                   </div>
@@ -316,8 +323,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Feature highlights section */}
+        {/* FEATURE HIGHLIGHTS SECTION */}
         <section className="relative overflow-hidden bg-black px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="section-shell relative z-10 text-white">
             <div className="mx-auto flex flex-col items-center justify-center gap-12">
@@ -341,6 +347,7 @@ export default function Home() {
                         className="h-7 w-7"
                       />
                     </div>
+                    {/* Feature content */}
                     <div>
                       <h3 className="text-lg font-bold leading-[130%] tracking-[-0.24px]">
                         {feature.title}
@@ -354,17 +361,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-
           <SectionBackgroundImage />
         </section>
-
-        {/* Step-by-step onboarding section */}
+        {/* STEP-BY-STEP ONBOARDING SECTION */}
         <section className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="section-shell-l flex flex-col items-center gap-11">
             <h2 className="text-center text-3xl font-extrabold leading-[120%] tracking-[-0.01em] text-(--color-accent) sm:text-[#0A0A0A] sm:text-4xl">
               Your new assistant is ready to work
             </h2>
-
+            {/* Steps grid */}
             <div className="grid w-full gap-4 md:grid-cols-2 xl:grid-cols-3">
               {steps.map((step) => (
                 <article
@@ -382,6 +387,7 @@ export default function Home() {
                         className="aspect-[45.77/52.20] h-12.5 w-11.5"
                       />
                     </div>
+                    {/* Step content */}
                     <div className="flex flex-col gap-4">
                       <h3 className="text-lg font-bold text-[#0A0A0A]">
                         {step.title}
@@ -397,7 +403,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA banner section */}
+        {/* CTA SECTION */}
         <section className="relative overflow-hidden bg-black px-4 py-16 sm:px-6 lg:px-8">
           <div className="section-shell relative z-10 flex max-w-4xl flex-col items-center gap-4 text-center text-white">
             <h2 className="text-3xl font-black leading-[120%] tracking-[-0.44px] sm:text-4xl">
@@ -407,20 +413,21 @@ export default function Home() {
               Join the Nigerian business owners who are letting Akira handle the
               chat while they handle the growth.
             </p>
-            <a
+            <Link
               href="/auth/register"
               className="btn-primary mt-2 inline-flex items-center justify-center px-8 py-4 text-base"
             >
               Get Started for Free
-            </a>
+            </Link>
           </div>
 
           <SectionBackgroundImage />
         </section>
 
-        {/* Footer navigation */}
+        {/* FOOTER */}
         <footer className="bg-white px-4 py-12 sm:px-6 lg:px-8 lg:py-6">
           <div className="section-shell-l flex items-center justify-between gap-6 text-center sm:text-left">
+            {/* Footer logo */}
             <a
               href="#top"
               className="flex items-center gap-1.5"
@@ -437,7 +444,7 @@ export default function Home() {
                 Arika
               </span>
             </a>
-
+            {/* Footer links */}
             <div className="flex flex-col gap-3 text-sm font-bold text-[#0A0A0A] text-right sm:flex-row sm:items-center sm:gap-8">
               <a href="#support" className="footer-link">
                 Support / Contact Us

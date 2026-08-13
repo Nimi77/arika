@@ -1,4 +1,3 @@
-// app/auth/components/PasswordInput.tsx
 "use client";
 
 import { useState } from "react";
@@ -24,7 +23,7 @@ export default function PasswordInput({
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-sm font-medium">
         {label}
       </label>
@@ -38,7 +37,7 @@ export default function PasswordInput({
           placeholder={placeholder}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="w-full rounded-full tracking-[0.5em] px-3 py-2 pr-10 bg-neutral-800 hover:bg-neutral-900 border border-transparent text-white  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)]"
+          className="w-full rounded-full tracking-[0.5em] px-3 py-2 pr-10 bg-(--color-surface)"
         />
         <button
           type="button"
@@ -48,9 +47,9 @@ export default function PasswordInput({
               ? `Hide ${label.toLowerCase()}`
               : `Show ${label.toLowerCase()}`
           }
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-[var(--color-text)]"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-(--color-text)"
         >
-          {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+          {visible ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
       </div>
       {error && (

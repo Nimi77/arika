@@ -1,4 +1,3 @@
-// app/auth/components/FormBanner.tsx
 type FormBannerProps = {
   message: string;
   actionLabel?: string;
@@ -20,7 +19,7 @@ export default function FormBanner({
         <button
           type="button"
           onClick={onAction}
-          className="ml-1 font-semibold text-[var(--color-accent)] underline hover:text-[var(--color-accent-hover)] hover:no-underline"
+          className="ml-1 font-semibold text-(--color-accent) underline hover:text-(--color-accent-hover) hover:no-underline"
         >
           {actionLabel}
         </button>

@@ -61,9 +61,7 @@ export default function AuthForm({
       setAuthError(null);
       // await signInWith("google")
     } catch (err) {
-      setAuthError(
-        "Authentication with Google failed. Please try again or sign up with email",
-      );
+      setAuthError(" Please try again or sign up with email");
     }
   }
 
@@ -104,11 +102,7 @@ export default function AuthForm({
         </button>
       </form>
 
-      <SocialAuthButtons
-        authError={authError}
-        onGoogleClick={handleGoogleClick}
-        onAppleClick={handleAppleClick}
-      />
+      <SocialAuthButtons />
     </div>
   );
 }

@@ -2,13 +2,11 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import logo from "@/public/logo.png";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "your email";
+  const email = searchParams.get("email") || "user.email";
   const [isResending, setIsResending] = useState(false);
   const [resent, setResent] = useState(false);
 
@@ -27,28 +25,26 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="section-shell flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:py-16">
-      <Image src={logo} alt="Arika" width={70} height={70} priority />
-
-      <h1 className="mt-6 text-center text-2xl font-bold text-(--color-text) sm:text-3xl">
+    <div className="flex w-full flex-col items-center">
+      <h1 className="text-center text-2xl font-bold text-(--color-text) sm:text-3xl">
         Verify your email
       </h1>
 
-      <p className="mt-2 max-w-xs text-center text-sm text-neutral-500 sm:max-w-sm">
+      <p className="mt-2 text-center text-sm text-(--color-text-secondary)">
         We sent a verification link to{" "}
-        <span className="font-medium text-(--color-text)">{email}</span>. Click
-        the link in your email to activate your account.
+        <span className="font-medium text-white">{email}</span>. Click the link
+        in your email to activate your account.
       </p>
 
-      <div className="mt-8 flex max-w-sm flex-col items-center gap-4 px-5 py-4">
+      <div className="mt-8 flex w-full max-w-sm flex-col items-center gap-4 px-5 py-4">
         <button
           type="button"
           onClick={handleResend}
           disabled={isResending || resent}
-          className={`w-full rounded-full py-2 font-bold transition-colors ${
+          className={`w-full rounded-full py-3 font-medium transition-colors duration-200  ${
             resent
-              ? "bg-(--color-btn-secondary-bg) text-(--color-accent)"
-              : "btn-primary"
+              ? "bg-(--color-accent-hover) text-white"
+              : "bg-(--color-surface) text-(--color-text-secondary) hover:bg-neutral-500/15  "
           }`}
         >
           {isResending
@@ -57,12 +53,11 @@ function VerifyEmailContent() {
               ? "Verification link sent"
               : "Resend verification link"}
         </button>
-
         <p className="text-center text-sm text-neutral-500">
           Wrong email address?{" "}
           <Link
             href="/auth/register"
-            className="footer-link font-medium text-(--color-accent)"
+            className="text-(--color-accent) hover:underline"
           >
             Change email
           </Link>
@@ -74,7 +69,13 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-neutral-500">Loading...</p>
+        </div>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );

@@ -2,8 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import logo from "@/public/logo.png";
 
 const BUSINESS_CATEGORIES = [
   "Fashion & Apparel",
@@ -36,8 +34,8 @@ function OptionButton({ label, selected, onClick }: OptionButtonProps) {
       onClick={onClick}
       className={`rounded-full px-2 py-3 text-xs  text-center transition-colors border ${
         selected
-          ? "border-[var(--color-accent)] bg-[var(--color-surface)] text-[var(--color-accent)]"
-          : "border-transparent bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--color-accent)]"
+          ? "border-(--color-accent) bg-(--color-surface) text-(--color-accent)"
+          : "border-transparent bg-(--color-surface) text-(--color-text) hover:border-(--color-accent)"
       }`}
     >
       {label}
@@ -57,9 +55,9 @@ function StepCircles({ step }: StepCirclesProps) {
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-4 transition-colors ${
               step > n
-                ? "bg-transparent border-neutral-700 text-[var(--color-accent)] text-sm"
+                ? "bg-transparent border-neutral-700 text-(--color-accent) text-sm"
                 : step === n
-                  ? "border-[var(--color-accent)] text-[var(--color-accent)]"
+                  ? "border-(--color-accent) text-(--color-accent)"
                   : "border-neutral-700 text-neutral-500"
             }`}
           >
@@ -67,7 +65,7 @@ function StepCircles({ step }: StepCirclesProps) {
           </div>
           {i < 2 && (
             <div
-              className={`w-20 h-[5px] mx-2 transition-colors ${
+              className={`w-20 h-1.25 mx-2 transition-colors ${
                 step > n ? "bg-neutral-700" : "bg-neutral-700"
               }`}
             />
@@ -125,8 +123,8 @@ export default function ProfileSetupPage() {
       disabled={!canComplete || isCompleting}
       className={`w-full py-3 mt-8 rounded-full text-sm transition-colors disabled:opacity-40   disabled:cursor-not-allowed ${
         completed
-          ? "bg-[var(--color-accent)] text-[var(--color-text)]"
-          : "bg-[var(--color-surface)]"
+          ? "bg-(--color-accent) text-(--color-text)"
+          : "bg-(--color-surface)"
       }`}
     >
       {isCompleting ? "Saving..." : "Complete setup"}
@@ -134,14 +132,12 @@ export default function ProfileSetupPage() {
   );
 
   return (
-    <div className="section-shell flex flex-col items-center px-4 py-10 sm:py-16">
-      <Image src={logo} alt="Arika" width={70} height={70} priority />
-
-      <h1 className="mt-6 text-3xl text-[var(--color-text)] sm:text-3xl font-bold text-center">
+    <>
+      <h1 className="text-3xl text-(--color-text) sm:text-3xl font-bold text-center">
         Complete your business profile
       </h1>
 
-      <p className="mt-2 mb-6 text-sm text-neutral-500 text-center max-w-xs sm:max-w-sm">
+      <p className="mb-6 text-sm text-neutral-500 text-center max-w-xs sm:max-w-sm">
         Just a few details to customize your Arika workspace.
       </p>
 
@@ -151,7 +147,7 @@ export default function ProfileSetupPage() {
 
         {step === 1 && (
           <div>
-            <h2 className="text-xs  font-semibold text-[var(--color-secondary)] mb-3">
+            <h2 className="text-xs  font-semibold text-(--color-secondary) mb-3">
               Business category
             </h2>
             <div className="flex flex-col gap-3">
@@ -168,7 +164,7 @@ export default function ProfileSetupPage() {
               type="button"
               onClick={() => setStep(2)}
               disabled={!canContinueStep1}
-              className="btn-primary rounded-full w-full py-2 mt-6 disabled:bg-[var(--color-surface)] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="btn-primary rounded-full w-full py-2 mt-6 disabled:bg-(--color-surface) disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -177,7 +173,7 @@ export default function ProfileSetupPage() {
 
         {step === 2 && (
           <div>
-            <h2 className="text-xs font-semibold text-[var(--color-secondary)] mb-3">
+            <h2 className="text-xs font-semibold text-(--color-secondary) mb-3">
               Where do you currently sell or engage customers?
             </h2>
             <div className="grid grid-cols-1 gap-3">
@@ -203,7 +199,7 @@ export default function ProfileSetupPage() {
 
         {step === 3 && (
           <div>
-            <h2 className="text-xs font-semibold text-[var(--color-secondary)] mb-3">
+            <h2 className="text-xs font-semibold text-(--color-secondary) mb-3">
               Where do you currently sell or engage customers?
             </h2>
             <div className="grid grid-cols-1 gap-3">
@@ -225,7 +221,7 @@ export default function ProfileSetupPage() {
       <div className="hidden lg:block w-full max-w-md mt-8">
         <div className="flex flex-col gap-8">
           <div>
-            <h2 className="text-[10px] font-semibold text-[var(--color-secondary)] mb-2">
+            <h2 className="text-[10px] font-semibold text-(--color-secondary) mb-2">
               Business category
             </h2>
             <div className="grid grid-cols-3 gap-1.5">
@@ -241,7 +237,7 @@ export default function ProfileSetupPage() {
           </div>
 
           <div>
-            <h2 className="text-[10px] font-semibold text-[var(--color-secondary)] mb-2">
+            <h2 className="text-[10px] font-semibold text-(--color-secondary) mb-2">
               Where do you currently sell or engage customers?
             </h2>
             <div className="grid grid-cols-2 gap-1.5">
@@ -257,7 +253,7 @@ export default function ProfileSetupPage() {
           </div>
 
           <div>
-            <h2 className="text-[10px] font-semibold text-[var(--color-secondary)] mb-2">
+            <h2 className="text-[10px] font-semibold text-(--color-secondary) mb-2">
               How big is your team?
             </h2>
             <div className="grid grid-cols-2 gap-1.5">
@@ -275,6 +271,6 @@ export default function ProfileSetupPage() {
 
         {completeButton}
       </div>
-    </div>
+    </>
   );
 }
