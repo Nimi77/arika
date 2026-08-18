@@ -47,11 +47,13 @@ function VerifyEmailContent() {
               : "bg-(--color-surface) text-(--color-text-secondary) hover:bg-neutral-500/15  "
           }`}
         >
-          {isResending
-            ? "Sending..."
-            : resent
-              ? "Verification link sent"
-              : "Resend verification link"}
+          <Link href="profile-setup" className="w-full">
+            {isResending
+              ? "Sending..."
+              : resent
+                ? "Verification link sent"
+                : "Resend verification link"}
+          </Link>
         </button>
         <p className="text-center text-sm text-neutral-500">
           Wrong email address?{" "}

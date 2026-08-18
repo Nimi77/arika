@@ -1,4 +1,3 @@
-// app/auth/profile-setup/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -94,8 +93,6 @@ export default function ProfileSetupPage() {
   const canContinueStep2 = !!locationChannel;
   const canComplete = !!businessCategory && !!locationChannel && !!businessSize;
 
-  // Placeholder — backend dev will replace this with the real save call.
-  // The full profile payload backend needs is assembled here:
   async function handleComplete() {
     const profileData: Selections = {
       businessCategory,
@@ -133,7 +130,7 @@ export default function ProfileSetupPage() {
 
   return (
     <>
-      <h1 className="text-3xl text-(--color-text) sm:text-3xl font-bold text-center">
+      <h1 className="text-3xl text-(--color-text) sm:text-3xl font-bold text-center lg:text-[28px]">
         Complete your business profile
       </h1>
 
@@ -141,7 +138,7 @@ export default function ProfileSetupPage() {
         Just a few details to customize your Arika workspace.
       </p>
 
-      {/* ===== MOBILE / TABLET — one category per screen ===== */}
+      {/* Mobile */}
       <div className="w-full max-w-md mt-8 lg:hidden">
         <StepCircles step={step} />
 
@@ -217,7 +214,7 @@ export default function ProfileSetupPage() {
         )}
       </div>
 
-      {/* ===== DESKTOP — all three categories together, no step circles ===== */}
+      {/* DESKTOP */}
       <div className="hidden lg:block w-full max-w-md mt-8">
         <div className="flex flex-col gap-8">
           <div>
