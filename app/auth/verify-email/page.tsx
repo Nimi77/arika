@@ -47,7 +47,7 @@ function VerifyEmailContent() {
               : "bg-(--color-surface) text-(--color-text-secondary) hover:bg-neutral-500/15  "
           }`}
         >
-          <Link href="profile-setup" className="w-full">
+          <Link href="/auth/profile-setup" className="w-full">
             {isResending
               ? "Sending..."
               : resent
