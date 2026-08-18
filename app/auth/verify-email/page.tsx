@@ -1,22 +1,24 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const email = searchParams.get("email") || "user.email";
   const [isResending, setIsResending] = useState(false);
   const [resent, setResent] = useState(false);
 
-  async function handleResend() {
+  async function handleVerify() {
     setIsResending(true);
 
     try {
-      // await resend verification request.
+      // TODO: replace with real verification/resend request once backend auth is ready.
       await Promise.resolve();
       setResent(true);
+      router.push("/auth/profile-setup");
     } catch (err) {
       // handle resend failure here
     } finally {
@@ -39,21 +41,19 @@ function VerifyEmailContent() {
       <div className="mt-8 flex w-full max-w-sm flex-col items-center gap-4 px-5 py-4">
         <button
           type="button"
-          // onClick={handleResend}
-          // disabled={isResending || resent}
+          onClick={handleVerify}
+          disabled={isResending || resent}
           className={`w-full rounded-full py-3 font-medium transition-colors duration-200  ${
             resent
               ? "bg-(--color-accent-hover) text-white"
               : "bg-(--color-surface) text-(--color-text-secondary) hover:bg-neutral-500/15  "
           }`}
         >
-          <Link href="/auth/profile-setup" className="w-full">
-            {isResending
-              ? "Sending..."
-              : resent
-                ? "Verification link sent"
-                : "Resend verification link"}
-          </Link>
+          {isResending
+            ? "Sending..."
+            : resent
+              ? "Verification link sent"
+              : "Resend verification link"}
         </button>
         <p className="text-center text-sm text-neutral-500">
           Wrong email address?{" "}
