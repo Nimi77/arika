@@ -39,8 +39,8 @@ function VerifyEmailContent() {
       <div className="mt-8 flex w-full max-w-sm flex-col items-center gap-4 px-5 py-4">
         <button
           type="button"
-          onClick={handleResend}
-          disabled={isResending || resent}
+          // onClick={handleResend}
+          // disabled={isResending || resent}
           className={`w-full rounded-full py-3 font-medium transition-colors duration-200  ${
             resent
               ? "bg-(--color-accent-hover) text-white"
