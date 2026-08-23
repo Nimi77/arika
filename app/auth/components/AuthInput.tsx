@@ -7,7 +7,8 @@ type AuthInputProps = {
   error?: string;
   required?: boolean;
   placeholder?: string;
-  showErrorMessage?: boolean; // ← new
+  autoComplete?: string;
+  showErrorMessage?: boolean;
 };
 
 export default function AuthInput({
@@ -19,29 +20,33 @@ export default function AuthInput({
   error,
   required,
   placeholder,
-  showErrorMessage = true, // ← defaults to true so existing usages (businessName, etc.) don't change
+  autoComplete,
+  showErrorMessage = true,
 }: AuthInputProps) {
+  const errorId = `${id}-error`;
+
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id}>{label}</label>
+
       <input
         id={id}
         name={id}
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(event) => onChange(event.target.value)}
         required={required}
         placeholder={placeholder}
-        aria-invalid={!!error}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className={`rounded-full px-3 py-2 bg-(--color-surface) transition-colors ${
-          error
-            ? "border border-(--color-accent) text-(--color-accent)"
-            : "border border-transparent text-(--color-text)"
+        autoComplete={autoComplete}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
+        className={`rounded-full border px-5 py-3 transition-colors ${
+          error ? "border-(--color-action-primary)" : ""
         }`}
       />
+
       {error && showErrorMessage && (
-        <p id={`${id}-error`} className="text-sm text-red-500">
+        <p id={errorId} className="text-sm text-red-600" role="alert">
           {error}
         </p>
       )}

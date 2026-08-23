@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logo from "@/public/logo.svg";
+import Link from "next/link";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -15,8 +16,17 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       {/* Logo */}
-      <div className="mb-4 flex flex-col items-center gap-2">
-        <Image src={logo} alt="Arika logo" width={70} height={70} priority />
+      <div className="mb-6 flex flex-col items-center gap-2">
+        <Link href="/" aria-label="Arika home" className="mb-8">
+          <Image
+            src={logo}
+            alt=""
+            width={70}
+            height={70}
+            className="h-8 w-auto"
+            priority
+          />
+        </Link>
 
         {!isVerifyEmailPage && (
           <div className="heading-text text-center">
@@ -29,7 +39,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             </h1>
 
             {!isResetPasswordPage && (
-              <p className="text-sm text-(--color-text-secondary)">
+              <p className="text-sm text-(--color-text-subtle)">
                 {isRegisterPage
                   ? "Manage customer conversations across all channels."
                   : "Sign in to manage your customer conversations."}
@@ -40,7 +50,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </div>
 
       {/* Content */}
-      <div className="w-full max-w-md">{children}</div>
+      <div className="w-full max-w-lg">{children}</div>
     </div>
   );
 }

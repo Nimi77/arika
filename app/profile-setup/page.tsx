@@ -1,4 +1,3 @@
-// app/auth/profile-setup/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -31,11 +30,12 @@ function OptionButton({ label, selected, onClick }: OptionButtonProps) {
   return (
     <button
       type="button"
+      aria-pressed={selected}
       onClick={onClick}
       className={`rounded-full px-2 py-3 text-xs  text-center transition-colors border ${
         selected
-          ? "border-(--color-accent) bg-(--color-surface) text-(--color-accent)"
-          : "border-transparent bg-(--color-surface) text-(--color-text) hover:border-(--color-accent)"
+          ? "border-(--color-action-primary) bg-(--color-surface) text-(--color-action-primary)"
+          : "border-transparent bg-(--color-surface) text-(--color-text) hover:border-(--color-action-primary)"
       }`}
     >
       {label}
@@ -55,9 +55,9 @@ function StepCircles({ step }: StepCirclesProps) {
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-4 transition-colors ${
               step > n
-                ? "bg-transparent border-neutral-700 text-(--color-accent) text-sm"
+                ? "bg-transparent border-neutral-700 text-(--color-action-primary) text-sm"
                 : step === n
-                  ? "border-(--color-accent) text-(--color-accent)"
+                  ? "border-(--color-action-primary) text-(--color-action-primary)"
                   : "border-neutral-700 text-neutral-500"
             }`}
           >
@@ -123,7 +123,7 @@ export default function ProfileSetupPage() {
       disabled={!canComplete || isCompleting}
       className={`w-full py-3 mt-8 rounded-full text-sm transition-colors disabled:opacity-40   disabled:cursor-not-allowed ${
         completed
-          ? "bg-(--color-accent) text-(--color-text)"
+          ? "bg-(--color-action-primary) text-(--color-text)"
           : "bg-(--color-surface)"
       }`}
     >
@@ -200,7 +200,7 @@ export default function ProfileSetupPage() {
         {step === 3 && (
           <div>
             <h2 className="text-xs font-semibold text-(--color-secondary) mb-3">
-              Where do you currently sell or engage customers?
+              How big is your team?
             </h2>
             <div className="grid grid-cols-1 gap-3">
               {BUSINESS_SIZES.map((size) => (

@@ -66,8 +66,8 @@ export default function SocialAuthButtons() {
   return (
     <div className="Oauth-buttons w-full">
       {authError && (
-        <div className="my-2 flex justify-center">
-          <p className="w-max rounded-full bg-red-950/40 px-3 py-2 text-center text-[11px] text-white">
+        <div className="mb-2 flex justify-center">
+          <p className="w-max rounded-full px-3 py-2 text-center text-[11px] text-white dark:bg-red-950/40 bg-red-900">
             {authError === "google" ? (
               <>
                 Authentication with Google failed.
@@ -89,10 +89,8 @@ export default function SocialAuthButtons() {
         <button
           type="button"
           onClick={handleGoogleClick}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-full border bg-(--color-surface) py-3 text-xs font-medium transition-colors hover:border-(--color-accent) ${
-            authError === "google"
-              ? "border-(--color-accent)"
-              : "border-transparent"
+          className={`flex flex-1 items-center justify-center gap-2 rounded-full border bg-(--color-bg-surface) py-3 text-sm font-medium transition-colors hover:border-(--color-action-primary) ${
+            authError === "google" ? "border-red-600" : "border-transparent"
           }`}
         >
           <GoogleIcon />
@@ -102,10 +100,8 @@ export default function SocialAuthButtons() {
         <button
           type="button"
           onClick={handleAppleClick}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-full border bg-(--color-surface) py-3 text-xs font-medium transition-colors hover:border-(--color-accent) ${
-            authError === "apple"
-              ? "border-(--color-accent)"
-              : "border-transparent"
+          className={`flex flex-1 items-center justify-center gap-2 rounded-full border bg-(--color-bg-surface) py-3 text-sm font-medium transition-colors hover:border-(--color-action-primary) ${
+            authError === "apple" ? "border-red-600" : "border-transparent"
           }`}
         >
           <AppleIcon />

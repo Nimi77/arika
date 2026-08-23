@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PasswordInput from "../../components/PasswordInput";
-import SocialAuthButtons from "../../components/SocialAuthButtons";
 import FormBanner from "../../components/FormBanner";
 import AuthInput from "../../components/AuthInput";
 
@@ -24,7 +23,6 @@ const REQUIREMENTS = [
 export default function RegisterPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
-  const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,7 +34,6 @@ export default function RegisterPage() {
   // Checks if the form is completely filled and valid
   const isFormValid =
     fullName.trim().length > 0 &&
-    businessName.trim().length > 0 &&
     /\S+@\S+\.\S+/.test(email) &&
     REQUIREMENTS.every((r) => r.test(password)) &&
     confirmPassword === password &&
@@ -44,7 +41,6 @@ export default function RegisterPage() {
 
   function validate() {
     const next: Record<string, string> = {};
-    if (!businessName.trim()) next.businessName = "Business name is required";
     if (!email.trim()) next.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(email)) next.email = "Enter a valid email";
     if (!REQUIREMENTS.every((r) => r.test(password)))
@@ -64,9 +60,6 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      console.log("Signup data:", { businessName, email, password });
-      // await registerUser({ businessName, email, password })
-
       // ===== TEMPORARY TEST TRIGGERS — remove once backend is connected =====
       if (email === "test@exists.com") {
         throw { reason: "duplicate_email" };
@@ -99,16 +92,6 @@ export default function RegisterPage() {
 
   return (
     <div className="email-registration-page">
-      <SocialAuthButtons />
-
-      <div className="flex items-center gap-3 my-6">
-        <hr className="flex-1 border-(--color-surface) dark:border-neutral-700" />
-        <span className="text-xs text-(--color-subtle) whitespace-nowrap">
-          or continue with email
-        </span>
-        <hr className="flex-1 border-(--color-surface) dark:border-neutral-700" />
-      </div>
-
       {emailExists && (
         <div className="mb-4">
           <FormBanner
@@ -134,20 +117,6 @@ export default function RegisterPage() {
           error={errors.fullName}
           required
         />
-        <div>
-          <AuthInput
-            id="businessName"
-            label="Business name"
-            placeholder="Sarah's Fashion Hub"
-            value={businessName}
-            onChange={setBusinessName}
-            error={errors.businessName}
-            required
-          />
-          <p className="mt-1 text-xs text-neutral-500">
-            This will be displayed on your main workspace
-          </p>
-        </div>
         <AuthInput
           id="email"
           label="Email address"
@@ -164,6 +133,7 @@ export default function RegisterPage() {
           }}
           error={errors.email}
           showErrorMessage={false}
+          autoComplete="email"
           required
         />
         <PasswordInput
@@ -188,7 +158,9 @@ export default function RegisterPage() {
           {REQUIREMENTS.map((r) => (
             <li
               key={r.label}
-              className={r.test(password) ? "text-(--color-accent)" : ""}
+              className={
+                r.test(password) ? "text-(--color-action-primary)" : ""
+              }
             >
               • {r.label}
             </li>
@@ -198,10 +170,10 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={!isFormValid || isSubmitting}
-          className={`text-sm font-bold rounded-full py-3 mt-2 transition-colors duration-200 ${
+          className={`text-sm font-bold rounded-full py-3 mt-2 transition-all duration-250 disabled:cursor-not-allowed disabled:opacity-60 ${
             isFormValid && !isSubmitting
-              ? "bg-(--color-accent) hover:bg-(--color-accent-hover) text-white cursor-pointer"
-              : "bg-(--color-surface) text-(--color-subtle) cursor-not-allowed opacity-60"
+              ? "bg-(--color-action-primary) hover:bg-(--color-action-primary-hover) text-white cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(99,91,255,0.3)] active:translate-y-0"
+              : "bg-(--color-bg-surface) text-(--color-text-subtle) cursor-not-allowed"
           }`}
         >
           {isSubmitting ? "Creating account..." : "Create Account"}
@@ -213,7 +185,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            className="text-(--color-accent) hover:underline"
+            className="text-(--color-action-primary) font-medium hover:underline transition-colors"
           >
             Login
           </Link>
