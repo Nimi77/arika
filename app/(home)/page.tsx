@@ -12,6 +12,11 @@ import Autoplay from "embla-carousel-autoplay";
 import { businesses, features, steps } from "./content";
 import Link from "next/link";
 
+type Business = {
+  title: string;
+  image: string;
+};
+
 // Shared background layer used by the hero and CTA sections.
 function SectionBackgroundImage() {
   return (
@@ -28,6 +33,25 @@ function SectionBackgroundImage() {
   );
 }
 
+// Shared BusinessCard between Mobile and Desktop Screen
+function BusinessCard({ business }: { business: Business }) {
+  return (
+    <div className="relative min-w-full h-90 shrink-0  rounded-[28px] bg-black overflow-hidden">
+      <Image
+        src={business.image}
+        alt={`${business.title} showcase`}
+        fill
+        sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw max-width: 767px) 100vw"
+        className="object-cover object-[center_20%]"
+      />
+
+      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
+        <h3 className="font-bold text-white">{business.title}</h3>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [activeBusiness, setActiveBusiness] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,7 +63,7 @@ export default function Home() {
     },
     [
       Autoplay({
-        delay: 4000,
+        delay: 2500,
         stopOnInteraction: true,
         stopOnMouseEnter: true,
       }),
@@ -68,7 +92,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="bg-black">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-2 focus:z-100 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-black focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-(--color-action-primary) focus:ring-offset-2"
@@ -208,11 +232,11 @@ export default function Home() {
       <section className="hero bg-black relative flex min-h-[calc(100svh-4.75rem)] items-center justify-center overflow-hidden">
         <div className="relative z-10 w-full flex flex-col items-center gap-8 px-6">
           <div className="hero-content max-w-4xl">
-            <h1 className="text-center text-4xl font-bold leading-[110%] tracking-[-0.01em] text-white sm:text-5xl lg:text-6xl">
+            <h1 className="text-center text-4xl font-bold leading-[110%] tracking-[-0.045rem] text-white sm:text-5xl lg:text-6xl">
               The AI employee every African small business can afford
             </h1>
 
-            <p className="pt-2 text-center text-sm leading-[150%] tracking-[-0.01125rem] text-[#A3A3A3] lg:text-[18px]">
+            <p className="pt-2 text-center text-sm leading-[150%] tracking-[-0.01125rem] text-(--color-neutral) md:text-base lg:text-[1.125rem]">
               Stop managing customer messages manually and experiencing business
               owner burnout. Arika automates your customer conversations across
               WhatsApp Business and Instagram so you can respond instantly,
@@ -262,20 +286,7 @@ export default function Home() {
                       key={business.title}
                       className="relative min-w-full shrink-0 overflow-hidden rounded-[28px] bg-black"
                     >
-                      <Image
-                        src={business.image}
-                        alt={`${business.title} showcase`}
-                        width={500}
-                        height={500}
-                        className="h-92 w-full object-cover sm:h-80"
-                      />
-
-                      {/* Image gradient */}
-                      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
-                        <h3 className="font-bold text-white">
-                          {business.title}
-                        </h3>
-                      </div>
+                      <BusinessCard business={business} />
                     </div>
                   ))}
                 </div>
@@ -285,21 +296,17 @@ export default function Home() {
               <div className="flex items-center justify-center gap-2 pt-8">
                 {businesses.map((business, index) => (
                   <button
+                    key={`${business.title}-dot`}
                     type="button"
                     aria-label={`Show ${business.title}`}
-                    aria-current={activeBusiness === index ? "true" : false}
+                    aria-current={activeBusiness === index}
                     onClick={() => scrollToBusiness(index)}
-                    className="flex h-3 w-3 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary)"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        activeBusiness === index
-                          ? "bg-(--color-action-primary)"
-                          : "bg-(--color-action-secondary)"
-                      }`}
-                    />
-                  </button>
+                    className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+                      activeBusiness === index
+                        ? "bg-(--color-action-primary)"
+                        : "bg-(--color-action-secondary)"
+                    }`}
+                  />
                 ))}
               </div>
             </div>
@@ -307,23 +314,7 @@ export default function Home() {
             {/* TABLET / DESKTOP SME SHOWCASE */}
             <div className="hidden w-full gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
               {businesses.map((business) => (
-                <div
-                  key={business.title}
-                  className="relative overflow-hidden rounded-[28px] bg-black"
-                >
-                  <Image
-                    src={business.image}
-                    alt={`${business.title} showcase`}
-                    width={500}
-                    height={500}
-                    className="h-88 w-full object-cover sm:h-80"
-                  />
-
-                  {/* Image gradient */}
-                  <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/60 to-transparent px-4 py-4 text-left">
-                    <h3 className="font-bold text-white">{business.title}</h3>
-                  </div>
-                </div>
+                <BusinessCard key={business.title} business={business} />
               ))}
             </div>
           </div>
@@ -347,7 +338,7 @@ export default function Home() {
                 {features.map((feature) => (
                   <article
                     key={feature.title}
-                    className="flex flex-col items-start gap-5 rounded-[28px] bg-(--color-bg-surface) p-6 text-left shadow-sm"
+                    className="flex flex-col items-start gap-5 rounded-[28px] bg-[#171717] p-6 text-left shadow-sm"
                   >
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black">
                       <Image
@@ -360,11 +351,11 @@ export default function Home() {
                       />
                     </div>
                     {/* Feature content */}
-                    <div>
+                    <div className="feature-content">
                       <h3 className="text-lg font-bold leading-[130%] tracking-[-0.015rem]">
                         {feature.title}
                       </h3>
-                      <p className="pt-2 text-sm text-(--color-text-secondary) leading-[150%] tracking-[-0.01063rem] sm:text-base">
+                      <p className="pt-2 text-sm text-(--color-neutral) leading-[150%] tracking-[-0.01063rem] sm:text-base">
                         {feature.description}
                       </p>
                     </div>
@@ -393,7 +384,7 @@ export default function Home() {
               {steps.map((step) => (
                 <article
                   key={step.title}
-                  className="rounded-[28px] bg-[#f5f5f5] p-7 text-left"
+                  className="rounded-[28px] bg-neutral-100 p-7 text-left"
                 >
                   <div className="flex flex-col items-start gap-5">
                     <div className="flex items-center justify-center rounded-2xl">
@@ -429,7 +420,7 @@ export default function Home() {
               <h2 className="text-3xl font-black leading-[120%] tracking-[-0.44px] sm:text-4xl">
                 Stop losing potential sales to delayed responses.
               </h2>
-              <p className="max-w-2xl leading-7 tracking-[-0.18px] text-(--color-text-secondary) lg:text-lg">
+              <p className="max-w-2xl leading-7 tracking-[-0.18px] text-(--color-neutral) lg:text-lg">
                 Join the Nigerian business owners who are letting Arika handle
                 the chat while they handle the growth.
               </p>
@@ -480,6 +471,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

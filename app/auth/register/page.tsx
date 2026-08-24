@@ -59,12 +59,12 @@ export default function RegisterPage() {
 
           <span
             className="flex h-5 w-5 shrink-0 items-center justify-center
-            rounded-full border border-(--color-border-subtle)
+            rounded-full border border-neutral-400
             bg-white transition-colors
             peer-checked:border-(--color-action-primary)
             peer-checked:bg-(--color-action-primary)
             peer-focus-visible:ring-2
-            peer-focus-visible:ring-(--color-stroke)
+            peer-focus-visible:ring-(--color-action-primary)
             peer-focus-visible:ring-offset-2
           "
           >
@@ -74,7 +74,7 @@ export default function RegisterPage() {
               height="12"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="var(--color-text-on-primary)"
+              stroke="white"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"

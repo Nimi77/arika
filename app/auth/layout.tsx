@@ -17,20 +17,20 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       {/* Logo */}
       <div className="mb-6 flex flex-col items-center gap-2">
-        <Link href="/" aria-label="Arika home" className="mb-8">
+        <Link href="/" aria-label="Arika home" className="mb-4">
           <Image
             src={logo}
             alt=""
             width={70}
             height={70}
-            className="h-8 w-auto"
+            className="h-12 w-auto"
             priority
           />
         </Link>
 
         {!isVerifyEmailPage && (
           <div className="heading-text text-center">
-            <h1 className="text-2xl font-semibold tracking-[-0.32px] text-(--color-text-primary)">
+            <h1 className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
               {isResetPasswordPage
                 ? "Reset password"
                 : isRegisterPage

@@ -17,6 +17,7 @@ export default function LoginPage() {
     setErrors({ errors: "Incorrect Password" });
 
     console.log("login successful");
+    setIsSubmitting(false)
   }
 
   return (
@@ -25,7 +26,7 @@ export default function LoginPage() {
 
       <div className="flex items-center gap-3 my-6">
         <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />
-        <span className="text-xs text-(--colortext-subtle) whitespace-nowrap">
+        <span className="text-xs text-(--color-text-subtle) whitespace-nowrap">
           or continue with email
         </span>
         <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />
