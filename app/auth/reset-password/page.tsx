@@ -48,7 +48,7 @@ export default function ResetPasswordPage() {
     return Object.keys(next).length === 0;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
 
     setErrors({});
@@ -105,7 +105,9 @@ export default function ResetPasswordPage() {
             <li
               key={requirement.label}
               className={
-                requirement.test(password) ? "text-(--color-accent)" : ""
+                requirement.test(password)
+                  ? "text-(--color-action-primary)"
+                  : ""
               }
             >
               • {requirement.label}
@@ -114,7 +116,7 @@ export default function ResetPasswordPage() {
         </ul>
 
         {errors.form && (
-          <p role="alert" className="text-center text-xs text-red-400">
+          <p role="alert" className="text-center text-xs text-red-600">
             {errors.form}
           </p>
         )}
@@ -122,14 +124,14 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full bg-(--color-accent) py-3 text-sm font-semibold transition-colors hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full bg-(--color-action-primary) py-3 text-sm font-semibold transition-colors hover:bg-(--color-action-primary-hover) disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Resetting password..." : "Reset password"}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-(--color-surface) text-(--color-text-secondary) w-full rounded-full py-3 text-sm hover:bg-neutral-700/15  transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60"
+            className="bg-(--color-bg-surface) text-(--color-text-secondary) w-full rounded-full py-3 text-sm hover:bg-neutral-700/15  transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Link href="/auth/login">Back to Sign In</Link>
           </button>
