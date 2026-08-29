@@ -1,31 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PasswordInput from "../components/PasswordInput";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 
 const REQUIREMENTS = [
-  {
-    label: "Minimum 8 characters",
-    test: (v: string) => v.length >= 8,
-  },
+  { label: "Minimum 8 characters", test: (v: string) => v.length >= 8 },
   {
     label: "At least 1 uppercase & 1 lowercase character",
     test: (v: string) => /[a-z]/.test(v) && /[A-Z]/.test(v),
   },
-  {
-    label: "At least 1 number",
-    test: (v: string) => /\d/.test(v),
-  },
+  { label: "At least 1 number", test: (v: string) => /\d/.test(v) },
   {
     label: "At least 1 special character (!@#$%^*)",
     test: (v: string) => /[!@#$%^*]/.test(v),
   },
 ];
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -37,23 +31,18 @@ export default function ResetPasswordPage() {
 
   function validate() {
     const next: Record<string, string> = {};
-
     if (!REQUIREMENTS.every((r) => r.test(password))) {
       next.password = "Password doesn't meet the requirements";
     }
-
     if (confirmPassword !== password) {
       next.confirmPassword = "Passwords don't match";
     }
-
     setErrors(next);
-
     return Object.keys(next).length === 0;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     setErrors({});
 
     if (!token) {
@@ -64,13 +53,11 @@ export default function ResetPasswordPage() {
     if (!validate()) return;
 
     setIsSubmitting(true);
-
     try {
       await apiFetch("/auth/reset-password", {
         method: "POST",
         body: JSON.stringify({ token, password }),
       });
-
       router.push("/auth/login");
     } catch (error) {
       setErrors({
@@ -144,5 +131,19 @@ export default function ResetPasswordPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-neutral-500">Loading...</p>
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

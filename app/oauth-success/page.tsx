@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { storeAuthTokens } from "@/lib/api";
 
-export default function OAuthSuccessPage() {
+function OAuthSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -39,5 +39,19 @@ export default function OAuthSuccessPage() {
         <p className="text-sm text-(--color-text-subtle)">Signing you in…</p>
       )}
     </div>
+  );
+}
+
+export default function OAuthSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-neutral-500">Loading...</p>
+        </div>
+      }
+    >
+      <OAuthSuccessContent />
+    </Suspense>
   );
 }
