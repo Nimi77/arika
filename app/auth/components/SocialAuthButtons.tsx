@@ -39,28 +39,11 @@ const AppleIcon = () => (
 export default function SocialAuthButtons() {
   const [authError, setAuthError] = useState<"google" | "apple" | null>(null);
 
-  async function handleGoogleClick() {
-    setAuthError(null);
-
-    // TEMPORARY TEST
-    // Replace this with the real Google authentication later.
-    try {
-      throw new Error("test");
-    } catch {
-      setAuthError("google");
-    }
+  function handleGoogleClick() {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   }
-
-  async function handleAppleClick() {
-    setAuthError(null);
-
-    // TEMPORARY TEST
-    // Replace this with the real Apple authentication later.
-    try {
-      throw new Error("test");
-    } catch {
-      setAuthError("apple");
-    }
+  function handleAppleClick() {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/apple`;
   }
 
   return (

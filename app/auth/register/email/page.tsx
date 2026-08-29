@@ -6,6 +6,7 @@ import Link from "next/link";
 import PasswordInput from "../../components/PasswordInput";
 import FormBanner from "../../components/FormBanner";
 import AuthInput from "../../components/AuthInput";
+import { apiFetch, storeAuthTokens } from "@/lib/api";
 
 const REQUIREMENTS = [
   { label: "Minimum 8 characters", test: (v: string) => v.length >= 8 },
@@ -31,7 +32,6 @@ export default function RegisterPage() {
   const [emailAuthFailed, setEmailAuthFailed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Checks if the form is completely filled and valid
   const isFormValid =
     fullName.trim().length > 0 &&
     /\S+@\S+\.\S+/.test(email) &&
@@ -53,26 +53,30 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log("handleSubmit fired", { isFormValid, fullName, email }); // temporary debug line
     setEmailExists(false);
     setEmailAuthFailed(false);
     setErrors((prev) => ({ ...prev, email: "" }));
-    if (!validate()) return;
+    if (!validate()) {
+      console.log("validate() failed, stopping here"); // temporary debug line
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-      // ===== TEMPORARY TEST TRIGGERS — remove once backend is connected =====
-      if (email === "test@exists.com") {
-        throw { reason: "duplicate_email" };
-      }
-      if (email === "test@fail.com") {
-        throw { reason: "auth_failed" };
-      }
-      // =========================================================================
+      const data = await apiFetch("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ fullName, email, password }),
+      });
 
-      // On success, route to the verification page
+      console.log("Register response:", data); // temporary debug line
+
+      storeAuthTokens(data.data);
+
       router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
-      if (err?.reason === "duplicate_email") {
+      console.log("Register error:", err); // temporary debug line
+      if (err?.status === 409) {
         setEmailExists(true);
         setErrors((prev) => ({
           ...prev,

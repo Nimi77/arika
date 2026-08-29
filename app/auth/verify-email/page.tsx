@@ -1,19 +1,52 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 function VerifyEmailContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "user.email";
+  const token = searchParams.get("token");
 
   const [isResending, setIsResending] = useState(true);
   const [cooldown, setCooldown] = useState(10);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
 
-  // Initial verification email has already been sent
-  // before this page is reached.
+  // If the URL has a verification token (user clicked the email link),
+  // confirm it with the backend, then send them to login.
   useEffect(() => {
+    if (!token) return;
+
+    async function verify() {
+      setIsVerifying(true);
+      setVerifyError(null);
+      try {
+        await apiFetch("/auth/verify-email", {
+          method: "POST",
+          body: JSON.stringify({ token }),
+        });
+        router.push("/auth/login");
+      } catch (err) {
+        setVerifyError(
+          "This verification link is invalid or has expired. Please request a new one.",
+        );
+      } finally {
+        setIsVerifying(false);
+      }
+    }
+
+    verify();
+  }, [token, router]);
+
+  // Countdown for the "resend" button — only relevant while waiting,
+  // i.e. when there's no token in the URL yet.
+  useEffect(() => {
+    if (token) return;
+
     const timer = setInterval(() => {
       setCooldown((prev) => {
         if (prev <= 1) {
@@ -21,36 +54,23 @@ function VerifyEmailContent() {
           setIsResending(false);
           return 0;
         }
-
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [token]);
 
   async function handleResend() {
     if (isResending) return;
 
     setIsResending(true);
-    setCooldown(10);
+    setCooldown(50);
 
     try {
-      //  resend verification API here
-      // await fetch("/api/auth/resend-verification", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ email }),
-      // });
-
-      // Simulate email request
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
       console.error("Failed to resend verification email:", error);
-
-      // If sending fails, the user can try again
       setIsResending(false);
       setCooldown(0);
       return;
@@ -63,12 +83,36 @@ function VerifyEmailContent() {
           setIsResending(false);
           return 0;
         }
-
         return prev - 1;
       });
     }, 1000);
   }
 
+  // While actively verifying a token from the email link
+  if (token) {
+    return (
+      <div className="verify-email-content flex flex-col justify-center items-center gap-4">
+        {isVerifying && (
+          <p className="text-sm text-(--color-text-subtle)">
+            Verifying your email…
+          </p>
+        )}
+        {verifyError && (
+          <>
+            <p className="text-sm text-red-600 text-center">{verifyError}</p>
+            <Link
+              href="/auth/register/email"
+              className="text-sm font-medium text-(--color-action-primary) hover:underline"
+            >
+              Back to registration
+            </Link>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // Default: waiting for the user to check their email
   return (
     <div className="verify-email-content flex flex-col justify-center items-center gap-8">
       <div className="text">
@@ -105,7 +149,7 @@ function VerifyEmailContent() {
         <p className="text-center text-sm text-(--color-text-subtle)">
           Wrong email address?{" "}
           <Link
-            href=""
+            href="/auth/register/email"
             className="font-medium text-(--color-action-primary) hover:underline"
           >
             Change email

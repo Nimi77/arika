@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PasswordInput from "../components/PasswordInput";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 const REQUIREMENTS = [
   {
@@ -26,6 +27,8 @@ const REQUIREMENTS = [
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,22 +51,26 @@ export default function ResetPasswordPage() {
     return Object.keys(next).length === 0;
   }
 
-  async function handleSubmit(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     setErrors({});
+
+    if (!token) {
+      setErrors({ form: "This reset link is invalid or has expired." });
+      return;
+    }
 
     if (!validate()) return;
 
     setIsSubmitting(true);
 
     try {
-      // Backend will replace this with the real reset password request.
-      // await resetPassword(password);
+      await apiFetch("/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ token, password }),
+      });
 
-      await Promise.resolve();
-
-      // Redirect to login after successful password reset.
       router.push("/auth/login");
     } catch (error) {
       setErrors({
@@ -128,13 +135,12 @@ export default function ResetPasswordPage() {
           >
             {isSubmitting ? "Resetting password..." : "Reset password"}
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-(--color-bg-surface) text-(--color-text-secondary) w-full rounded-full py-3 text-sm hover:bg-neutral-700/15  transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60"
+          <Link
+            href="/auth/login"
+            className="bg-(--color-bg-surface) text-(--color-text-secondary) w-full rounded-full py-3 text-sm hover:bg-neutral-700/15 transition-colors duration-200 text-center block"
           >
-            <Link href="/auth/login">Back to Sign In</Link>
-          </button>
+            Back to Sign In
+          </Link>
         </div>
       </form>
     </div>
