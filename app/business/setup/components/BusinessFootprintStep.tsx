@@ -76,7 +76,7 @@ export default function BusinessFootprintStep({
   }
 
   return (
-    <>
+    <div className="px-3 sm:px-6 lg:px-0">
       <h1 className="lg:text-[32px] text-[24px] mt-6 text-(--color-text) sm:text-3xl font-black text-center">
         Your business Footprint
       </h1>
@@ -128,6 +128,6 @@ export default function BusinessFootprintStep({
 
         <ContinueButton onClick={handleContinue} label="Continue" />
       </div>
-    </>
+    </div>
   );
 }

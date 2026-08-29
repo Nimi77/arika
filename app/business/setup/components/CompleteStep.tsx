@@ -45,7 +45,7 @@ export default function CompleteStep({
   }
 
   return (
-    <>
+    <div className="px-3 sm:px-6 lg:px-0">
       <h1 className="lg:text-[32px] text-[24px] mt-6 text-(--color-text) sm:text-3xl font-black text-left lg:text-center">
         Teach Arika the basics
       </h1>
@@ -72,7 +72,7 @@ export default function CompleteStep({
               value={answer}
               onChange={setAnswer}
             />
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-subtle">
               Arika will use this to automatically reply whenever a customer
               asks something similar. Don't worry, you can easily add more FAQs
               from your dashboard
@@ -95,6 +95,6 @@ export default function CompleteStep({
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -93,7 +93,7 @@ export default function BusinessInfoStep({
   }
 
   return (
-    <>
+    <div className="px-3 sm:px-6 lg:px-0">
       <h1 className="lg:text-[32px] text-[24px] mt-6 text-(--color-text) text-left sm:text-3xl font-black lg:text-center">
         Tell us about your business
       </h1>
@@ -200,6 +200,6 @@ export default function BusinessInfoStep({
           // disabled={!canComplete}
         />
       </div>
-    </>
+    </div>
   );
 }
