@@ -11,7 +11,7 @@ export default function StepCircles({ step }: StepCirclesProps) {
             className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-4 transition-colors ${
               step >= n
                 ? "border-(--color-action-primary) text-(--color-action-primary)"
-                : "border-(--color-bg-surface) text-neutral-500"
+                : "border-(--color-bg-surface) text-subtle"
             }`}
           >
             {n}
