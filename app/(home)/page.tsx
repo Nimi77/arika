@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/logo.svg";
-import heroImg from "@/public/hero-img.png";
+import heroImg from "@/public/hero.png";
 import { Menu } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "motion/react";
@@ -233,7 +233,7 @@ export default function Home() {
         <div className="relative z-10 w-full flex flex-col items-center gap-8 px-6">
           <div className="hero-content max-w-4xl">
             <h1 className="text-center text-4xl font-bold leading-[110%] tracking-[-0.045rem] text-white sm:text-5xl lg:text-6xl">
-              The AI employee every African small business can afford
+              The AI Employee every African small business can afford
             </h1>
 
             <p className="pt-2 text-center text-sm leading-[150%] tracking-[-0.01125rem] text-(--color-neutral) md:text-base lg:text-[1.125rem]">

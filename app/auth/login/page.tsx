@@ -5,19 +5,42 @@ import SocialAuthButtons from "../components/SocialAuthButtons";
 import PasswordInput from "../components/PasswordInput";
 import { useState } from "react";
 import AuthInput from "../components/AuthInput";
+import { useRouter } from "next/navigation";
+import { apiFetch, storeAuthTokens } from "@/lib/api";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleLogin(e: React.SubmitEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    setErrors({ errors: "Incorrect Password" });
+    console.log("Login button clicked, attempting fetch..."); // temporary debug line
+    setErrors({});
+    setIsSubmitting(true);
 
-    console.log("login successful");
-    setIsSubmitting(false)
+    try {
+      const data = await apiFetch("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+
+      console.log("Login response:", data); // can remove this now
+
+      storeAuthTokens(data.data); // <-- changed from storeAuthTokens(data)
+      router.push("/business/setup");
+    } catch (err: any) {
+      console.log("Login error:", err); // temporary debug line
+      if (err?.status === 401) {
+        setErrors({ password: "Incorrect email or password" });
+      } else {
+        setErrors({ password: "Something went wrong. Please try again." });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
