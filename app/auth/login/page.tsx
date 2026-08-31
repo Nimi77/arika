@@ -84,7 +84,6 @@ export default function LoginPage() {
           placeholder="sarah@example.com"
           value={email}
           onChange={(value) => handleChange("email", value)}
-          onBlur={() => "email"}
           error={errors.email}
           required
         />
@@ -93,7 +92,6 @@ export default function LoginPage() {
           label="Password"
           value={password}
           onChange={(value) => handleChange("password", value)}
-          onBlur={() => "password"}
           error={errors.password}
         />
         <button

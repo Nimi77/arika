@@ -4,7 +4,7 @@ type AuthInputProps = {
   type?: "text" | "email" | "password";
   value: string;
   onChange: (value: string) => void;
-  onBlur: (value: string) => void;
+  onBlur?: (value: string) => void;
   error?: string;
   required?: boolean;
   placeholder?: string;
@@ -37,7 +37,7 @@ export default function AuthInput({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        onBlur={(event) => onBlur(event.target.value)}
+        onBlur={(event) => onBlur?.(event.target.value)}
         required={required}
         placeholder={placeholder}
         autoComplete={autoComplete}
