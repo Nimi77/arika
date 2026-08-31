@@ -12,7 +12,7 @@ export default function FormBanner({
   return (
     <div
       role="alert"
-      className="rounded-full bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 px-4 py-3 text-xs text-white"
+      className="flex justify-center rounded-full border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-white"
     >
       {message}
       {actionLabel && onAction && (

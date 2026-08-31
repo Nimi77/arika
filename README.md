@@ -1,53 +1,95 @@
 # Arika
 
-Arika is a lightweight AI customer-support web app for African small businesses. The product is designed to help merchants answer customer questions faster, recover lost sales, and keep conversations organized across the channels they already use.
+Arika is a lightweight AI-powered customer support web app built for African small businesses. It helps merchants respond to customer questions faster, recover lost sales, and manage customer conversations from one place.
 
-## What the project is about
+## Overview
 
-Arika helps business owners reduce manual customer messaging and response delays by presenting a polished, single-dashboard experience for customer conversations. The landing page is meant to explain the product clearly, show the value proposition, and direct users into the auth flow.
+Arika is designed to reduce the time small business owners spend handling repetitive customer messages and responding to inquiries manually.
 
-## Key things to know
+The application currently includes a responsive landing page and an authentication flow covering registration, login, social authentication, email verification, and business profile setup.
 
-- This project is built with Next.js and the App Router.
-- Static brand assets, icons, and images live in the public folder.
-- The homepage uses reusable section content from the home content file.
-- Auth pages are available under `/auth/login` and `/auth/register`.
+## Tech Stack
 
-## Getting started
+- **Next.js** — React framework using the App Router
+- **TypeScript** — Type-safe development
+- **Tailwind CSS** — Styling and responsive UI
+- **Bun** — Package manager and runtime
 
-### Install dependencies
+## Features
+
+- Responsive landing page
+- User registration and login
+- Google and Apple authentication
+- Email verification
+- Business profile setup
+- Reusable authentication components
+- Responsive mobile and desktop experience
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have [Bun](https://bun.sh/) installed.
+
+### Installation
+
+Clone the repository and install the dependencies:
 
 ```bash
 bun install
 ```
 
-### Run the local app
+### Development
+
+Start the development server:
 
 ```bash
 bun run dev
 ```
 
-Then open http://localhost:3000 in your browser.
+Open http://localhost:3000 in your browser.
 
-### Create a production build
+### Production
+
+Create a production build:
 
 ```bash
 bun run build
 ```
 
-## Project structure
+Start the production server:
 
-- app/(home)/page.tsx — landing page composition and responsive section layout
-- app/(home)/content.ts — homepage data used for features, steps, and showcase cards
-- app/auth/login/page.tsx — login experience
-- app/auth/register/page.tsx — registration experience
-- app/auth/layout.tsx — shared auth layout wrapper
-- app/auth/components/Authform.tsx - authentication form to collect data
-- app/auth/components/AuthInput.tsx - authentication input to take name and email data 
-- app/auth/components/FormBanner.tsx - authentication error messages
-- app/auth/components/AuthInput.tsx - authentication input component for password and confirm password
-- app/auth/components/SocialAuthButton - authentication of apple and google
-- app/auth/verify-email/page.tsx - email verification experience
-- app/auth/profile-setup/page.tsx - business social profile setup
-- public/ — logo, background images, and SVG icon assets
-- 
+```bash
+bun run start
+```
+
+## Environment Variables
+
+Create a `.env.local` file in the root of the project and add the required environment variables.
+
+```env
+NEXT_PUBLIC_API_URL=
+```
+
+Additional environment variables may be required depending on the authentication and API configuration.
+
+> **Note:** Never commit `.env.local` or other files containing sensitive credentials to the repository.
+
+## Authentication
+
+Arika currently provides the following authentication routes:
+
+- `/auth/login` — Sign in to an existing account
+- `/auth/register` — Create a new account
+- `/auth/verify-email` — Sends verification link to user's email address
+- `/auth/profile-setup` — Complete business profile setup
+
+Social authentication is supported through Google and Apple.
+
+## Development Notes
+
+The project uses the Next.js App Router and follows a reusable component-based approach. Homepage content is separated from the page layout to make content easier to maintain and update.
+
+## License
+
+This project is private and intended for development purposes.

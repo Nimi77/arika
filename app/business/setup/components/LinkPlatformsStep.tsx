@@ -81,19 +81,49 @@ export default function LinkPlatformsStep({
   }
 
   return (
-    <div className="">
-      <h1 className="lg:text-[32px] text-[24px] mt-6 text-(--color-text) sm:text-3xl font-black text-center">
-        Link your platforms
-      </h1>
-      <p className="mb-6 lg:text-sm text-[12px] text-neutral-500 text-left lg:text-center max-w-xs sm:max-w-md">
-        Securely connect your accounts through Meta's official platform so that
-        Arika can manage your customer conversations.
-      </p>
+    <section
+      aria-labelledby="link-platform-heading"
+      className="
+        mx-auto w-full max-w-2xl
+        px-4 py-6
+        sm:px-6 sm:py-8
+        lg:px-8 lg:py-10
+      "
+    >
+      {/* Header */}
+      <div
+        className="
+          mx-auto
+          flex max-w-xl flex-col
+          items-center
+          gap-2
+          text-center
+        "
+      >
+        <h1
+          id="link-platform-heading"
+          className="
+            text-2xl font-black leading-tight
+            text-(--color-text)
+            sm:text-3xl
+            lg:text-4xl
+          "
+        >
+          Link your platforms
+        </h1>
+        <p className="max-w-xl text-sm leading-6 text-(--color-text-subtle) sm:text-base">
+          Securely connect your accounts through Meta's official platform so
+          that Arika can manage your customer conversations.
+        </p>
+      </div>
 
-      <StepCircles step={3} />
+      {/* Step indicator */}
+      <div className="my-6 sm:my-8 lg:my-10">
+        <StepCircles step={3} />
+      </div>
 
-      <div className="w-full max-w-2xl mt-2">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex flex-row sm:flex-col items-center sm:items-stretch justify-between sm:justify-start gap-3 sm:gap-4 flex-1 rounded-2xl bg-(--color-bg-surface) p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <InstagramIcon />
@@ -129,6 +159,6 @@ export default function LinkPlatformsStep({
 
         <ContinueButton onClick={onComplete} />
       </div>
-    </div>
+    </section>
   );
 }

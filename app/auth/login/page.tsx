@@ -15,6 +15,18 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleChange = (field: "email" | "password", value: string) => {
+    if (field === "email") {
+      setEmail(value);
+    } else {
+      setPassword(value);
+    }
+
+    if (errors.email || errors.password) {
+      setErrors({});
+    }
+  };
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setErrors({});
@@ -71,7 +83,8 @@ export default function LoginPage() {
           autoComplete="email"
           placeholder="sarah@example.com"
           value={email}
-          onChange={setEmail}
+          onChange={(value) => handleChange("email", value)}
+          onBlur={() => "email"}
           error={errors.email}
           required
         />
@@ -79,7 +92,8 @@ export default function LoginPage() {
           id="password"
           label="Password"
           value={password}
-          onChange={setPassword}
+          onChange={(value) => handleChange("password", value)}
+          onBlur={() => "password"}
           error={errors.password}
         />
         <button

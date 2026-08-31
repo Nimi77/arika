@@ -65,7 +65,7 @@ export default function BusinessSetupPage() {
   }
 
   return (
-    <div className="flex flex-col items-center text-center w-full">
+    <div className="py-10 flex flex-col items-center text-center w-full">
       {submitError && (
         <p className="text-xs text-red-600 mb-3" role="alert">
           {submitError}

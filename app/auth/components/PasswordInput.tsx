@@ -8,6 +8,7 @@ type PasswordInputProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur: (value: string) => void;
   error?: string;
   placeholder?: string;
 };
@@ -17,6 +18,7 @@ export default function PasswordInput({
   label,
   value,
   onChange,
+  onBlur,
   error,
   placeholder = "********",
 }: PasswordInputProps) {
@@ -32,6 +34,7 @@ export default function PasswordInput({
           type={visible ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={(event) => onBlur(event.target.value)}
           placeholder={placeholder}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}

@@ -236,7 +236,7 @@ export default function Home() {
               The AI Employee every African small business can afford
             </h1>
 
-            <p className="pt-2 text-center text-sm leading-[150%] tracking-[-0.01125rem] text-(--color-neutral) md:text-base lg:text-[1.125rem]">
+            <p className="pt-2 text-center leading-[150%] tracking-[-0.01125rem] text-(--color-neutral) text-base lg:text-[1.125rem]">
               Stop managing customer messages manually and experiencing business
               owner burnout. Arika automates your customer conversations across
               WhatsApp Business and Instagram so you can respond instantly,
