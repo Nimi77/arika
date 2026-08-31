@@ -15,21 +15,24 @@ function VerifyEmailContent() {
   const [cooldown, setCooldown] = useState(10);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
   // If the URL has a verification token (user clicked the email link),
-  // confirm it with the backend, then send them to login.
+  // confirm it with the backend, then show success.
   useEffect(() => {
     if (!token) return;
-
+    const verificationToken = token;
     async function verify() {
       setIsVerifying(true);
       setVerifyError(null);
       try {
-        await apiFetch("/auth/verify-email", {
-          method: "POST",
-          body: JSON.stringify({ token }),
-        });
-        router.push("/auth/login");
+        await apiFetch(
+          `/auth/verify-email?token=${encodeURIComponent(verificationToken)}`,
+          {
+            method: "POST",
+          },
+        );
+        setIsVerified(true);
       } catch (err) {
         setVerifyError(
           "This verification link is invalid or has expired. Please request a new one.",
@@ -40,27 +43,10 @@ function VerifyEmailContent() {
     }
 
     verify();
-  }, [token, router]);
+  }, [token]);
 
   // Countdown for the "resend" button — only relevant while waiting,
   // i.e. when there's no token in the URL yet.
-  useEffect(() => {
-    if (token) return;
-
-    const timer = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setIsResending(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [token]);
-
   async function handleResend() {
     if (isResending) return;
 
@@ -70,7 +56,7 @@ function VerifyEmailContent() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error("Failed to resend verification email:", error);
+      // console.error("Failed to resend verification email:", error);
       setIsResending(false);
       setCooldown(0);
       return;
@@ -86,6 +72,27 @@ function VerifyEmailContent() {
         return prev - 1;
       });
     }, 1000);
+  }
+
+  // Success state — verification just completed
+  if (isVerified) {
+    return (
+      <div className="verify-email-content flex flex-col justify-center items-center gap-4">
+        <h1 className="text-center text-2xl font-bold tracking-[-0.015rem] text-(--color-text-primary) sm:text-3xl">
+          Email Successfully Verified
+        </h1>
+        <p className="text-sm text-(--color-text-subtle) text-center">
+          Your account is now active.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push("/auth/login")}
+          className="w-full rounded-full bg-(--color-action-primary) py-3 text-sm font-semibold text-white hover:bg-(--color-action-primary-hover) transition-colors"
+        >
+          Continue to Login
+        </button>
+      </div>
+    );
   }
 
   // While actively verifying a token from the email link

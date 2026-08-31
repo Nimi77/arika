@@ -17,7 +17,6 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    console.log("Login button clicked, attempting fetch..."); // temporary debug line
     setErrors({});
     setIsSubmitting(true);
 
@@ -27,13 +26,19 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("Login response:", data); // can remove this now
-
-      storeAuthTokens(data.data); // <-- changed from storeAuthTokens(data)
+      storeAuthTokens(data.data);
       router.push("/business/setup");
     } catch (err: any) {
-      console.log("Login error:", err); // temporary debug line
-      if (err?.status === 401) {
+      const backendMessage =
+        typeof err?.body?.message?.message === "string"
+          ? err.body.message.message
+          : "";
+
+      if (backendMessage.toLowerCase().includes("verify")) {
+        setErrors({
+          password: "Please verify your email before logging in",
+        });
+      } else if (err?.status === 401) {
         setErrors({ password: "Incorrect email or password" });
       } else {
         setErrors({ password: "Something went wrong. Please try again." });

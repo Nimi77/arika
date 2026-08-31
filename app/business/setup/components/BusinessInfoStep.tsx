@@ -48,7 +48,7 @@ type FieldProps = {
 
 function TextField({ label, placeholder, value, onChange }: FieldProps) {
   return (
-    <div className="flex flex-col gap-1.5  w-full">
+    <div className="flex flex-col gap-1.5 w-full">
       <label className="text-xs text-left font-semibold text-(--color-secondary)">
         {label}
       </label>
@@ -57,25 +57,37 @@ function TextField({ label, placeholder, value, onChange }: FieldProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-[28px]  hover:border-(--color-action-primary) bg-(--color-bg-surface) px-4 py-3 text-sm text-(--color-text) placeholder:text-neutral-500 outline-none border border-transparent focus:border-(--color-action-primary) transition-colors"
+        className="w-full rounded-[28px] hover:border-(--color-action-primary) bg-(--color-bg-surface) px-4 py-3 text-sm text-(--color-text) placeholder:text-neutral-500 outline-none border border-transparent focus:border-(--color-action-primary) transition-colors"
       />
     </div>
   );
 }
 
-export default function BusinessInfoStep({
-  onComplete,
-}: {
+type BusinessInfoStepProps = {
+  businessName: string;
+  setBusinessName: (v: string) => void;
+  businessCategory: string | null;
+  setBusinessCategory: (v: string) => void;
+  phoneNumber: string | undefined;
+  setPhoneNumber: (v: string | undefined) => void;
+  setLogoFile: (f: File | null) => void;
   onComplete: () => void;
-}) {
-  const [businessCategory, setBusinessCategory] = useState<string | null>(null);
-  const [businessName, setBusinessName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState<string | undefined>();
+};
+
+export default function BusinessInfoStep({
+  businessName,
+  setBusinessName,
+  businessCategory,
+  setBusinessCategory,
+  phoneNumber,
+  setPhoneNumber,
+  setLogoFile,
+  onComplete,
+}: BusinessInfoStepProps) {
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [deliveryFee, setDeliveryFee] = useState("");
   const [paymentMethods, setPaymentMethods] = useState("");
   const [returnsPolicy, setReturnsPolicy] = useState("");
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canComplete = !!businessCategory && !!businessName && !!phoneNumber;
@@ -88,16 +100,12 @@ export default function BusinessInfoStep({
     }
   }
 
-  function handleContinue() {
-    onComplete();
-  }
-
   return (
     <div className="px-3 sm:px-6 lg:px-0">
       <h1 className="lg:text-[32px] text-[24px] mt-6 text-(--color-text) text-left sm:text-3xl font-black lg:text-center">
         Tell us about your business
       </h1>
-      <p className="mb-6 lg:text-sm text-[12px] text-neutral-500 text-left lg:text-center max-w-xs sm:max-w-sm">
+      <p className="mb-6 lg:text-sm text-[12px] text-neutral-500 tracking-wide text-left lg:text-center max-w-xs sm:max-w-sm">
         Let's set up your profile so Arika knows exactly who it is representing.
       </p>
 
@@ -144,7 +152,7 @@ export default function BusinessInfoStep({
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 w-full  text-left">
+          <div className="flex flex-col gap-1.5 w-full text-left">
             <label className="text-xs font-semibold text-(--color-secondary)">
               Business Phone number
             </label>
@@ -195,9 +203,9 @@ export default function BusinessInfoStep({
         </div>
 
         <ContinueButton
-          onClick={handleContinue}
+          onClick={onComplete}
           label="Continue"
-          // disabled={!canComplete}
+          disabled={!canComplete}
         />
       </div>
     </div>
