@@ -53,12 +53,10 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("handleSubmit fired", { isFormValid, fullName, email }); // temporary debug line
     setEmailExists(false);
     setEmailAuthFailed(false);
     setErrors((prev) => ({ ...prev, email: "" }));
     if (!validate()) {
-      console.log("validate() failed, stopping here"); // temporary debug line
       return;
     }
 
@@ -69,13 +67,10 @@ export default function RegisterPage() {
         body: JSON.stringify({ fullName, email, password }),
       });
 
-      console.log("Register response:", data); // temporary debug line
-
       storeAuthTokens(data.data);
 
       router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
-      console.log("Register error:", err); // temporary debug line
       if (err?.status === 409) {
         setEmailExists(true);
         setErrors((prev) => ({

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
 
@@ -60,25 +59,39 @@ function TextAreaField({
   );
 }
 
-export default function BusinessFootprintStep({
-  onComplete,
-}: {
+type BusinessFootprintStepProps = {
+  description: string;
+  setDescription: (v: string) => void;
+  operatingHours: string;
+  setOperatingHours: (v: string) => void;
+  websiteUrl: string;
+  setWebsiteUrl: (v: string) => void;
+  instagramHandle: string;
+  setInstagramHandle: (v: string) => void;
+  facebookHandle: string;
+  setFacebookHandle: (v: string) => void;
+  isSubmitting: boolean;
   onComplete: () => void;
-}) {
-  const [description, setDescription] = useState("");
-  const [operatingHours, setOperatingHours] = useState("");
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [instagramHandle, setInstagramHandle] = useState("");
-  const [facebookHandle, setFacebookHandle] = useState("");
+};
 
-  function handleContinue() {
-    onComplete();
-  }
-
+export default function BusinessFootprintStep({
+  description,
+  setDescription,
+  operatingHours,
+  setOperatingHours,
+  websiteUrl,
+  setWebsiteUrl,
+  instagramHandle,
+  setInstagramHandle,
+  facebookHandle,
+  setFacebookHandle,
+  isSubmitting,
+  onComplete,
+}: BusinessFootprintStepProps) {
   return (
-    <div className="px-3 sm:px-6 lg:px-0">
+    <div className="">
       <h1 className="lg:text-[32px] text-[24px] mt-6 text-(--color-text) sm:text-3xl font-black text-center">
-        Your business Footprint
+        Your business footprint
       </h1>
       <p className="mb-6 lg:text-sm text-[12px] text-neutral-500 text-left lg:text-center max-w-xs sm:max-w-sm">
         Add your operating details and where customers can find you online
@@ -99,21 +112,21 @@ export default function BusinessFootprintStep({
 
           <TextField
             label="Operating Hours"
-            placeholder="e.g Mon"
+            placeholder="e.g., Mon - Sat, 9:00 AM to 6:00 PM"
             value={operatingHours}
             onChange={setOperatingHours}
           />
 
           <TextField
             label="Website URL"
-            placeholder="e.g yourbusiness.com"
+            placeholder="e.g., www.sarahscouture.com"
             value={websiteUrl}
             onChange={setWebsiteUrl}
           />
 
           <TextField
             label="Instagram Handle"
-            placeholder="e.g Sarah Fashion Couture"
+            placeholder="e.g @sarahs_couture"
             value={instagramHandle}
             onChange={setInstagramHandle}
           />
@@ -126,7 +139,11 @@ export default function BusinessFootprintStep({
           />
         </div>
 
-        <ContinueButton onClick={handleContinue} label="Continue" />
+        <ContinueButton
+          onClick={onComplete}
+          label={isSubmitting ? "Saving..." : "Continue"}
+          disabled={isSubmitting}
+        />
       </div>
     </div>
   );

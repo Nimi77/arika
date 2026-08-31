@@ -54,10 +54,13 @@ function ResetPasswordContent() {
 
     setIsSubmitting(true);
     try {
-      await apiFetch("/auth/reset-password", {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
+      await apiFetch(
+        `/auth/reset-password?token=${encodeURIComponent(token)}`,
+        {
+          method: "POST",
+          body: JSON.stringify({ password }),
+        },
+      );
       router.push("/auth/login");
     } catch (error) {
       setErrors({
