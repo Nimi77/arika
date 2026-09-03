@@ -379,7 +379,7 @@ export default function BusinessInfoStep({
           <ContinueButton
             onClick={onComplete}
             label="Continue"
-            // disabled={!canComplete}
+            disabled={!canComplete}
           />
         </div>
       </div>
