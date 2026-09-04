@@ -1,74 +1,85 @@
 "use client";
 
 import { useState } from "react";
+
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
+import TextField from "./TextField";
 
-type FieldProps = {
-  id: string;
-  label: string;
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
-  large?: boolean;
+export type FAQ = {
+  question: string;
+  answer: string;
 };
 
-function TextField({
-  id,
-  label,
-  placeholder,
-  value,
-  onChange,
-  large,
-}: FieldProps) {
-  return (
-    <div className="flex w-full flex-col gap-1.5 text-left">
-      <label
-        htmlFor={id}
-        className={`font-semibold text-(--color-secondary) ${
-          large ? "text-sm sm:text-base" : "text-sm"
-        }`}
-      >
-        {label}
-      </label>
-
-      <input
-        id={id}
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="
-          min-h-11 w-full
-          rounded-full
-          border border-transparent
-          bg-(--color-bg-surface)
-          px-4 py-3
-          text-sm text-(--color-text)
-          placeholder:text-neutral-500
-          outline-none
-          transition-colors
-          focus:border-(--color-action-primary)
-        "
-      />
-    </div>
-  );
-}
+type CompleteStepProps = {
+  onComplete: (faqs: FAQ[]) => void;
+  isSubmitting?: boolean;
+  submitError?: string | null;
+  onClearSubmitError?: () => void;
+};
 
 export default function CompleteStep({
   onComplete,
-}: {
-  onComplete: () => void;
-}) {
+  isSubmitting = false,
+  submitError,
+  onClearSubmitError,
+}: CompleteStepProps) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [error, setError] = useState("");
+
+  function validateFAQ() {
+    if (!question.trim() || !answer.trim()) {
+      setError("Please provide both a question and an answer.");
+      return false;
+    }
+
+    setError("");
+    return true;
+  }
 
   function handleAddMore() {
-    // append current FAQ to a list, clear fields for the next one
+    if (!validateFAQ()) return;
+
+    setFaqs((currentFAQs) => [
+      ...currentFAQs,
+      {
+        question: question.trim(),
+        answer: answer.trim(),
+      },
+    ]);
+
+    setQuestion("");
+    setAnswer("");
   }
 
   function handleContinue() {
-    onComplete();
+    // If there is text in either field, validate and include it.
+    if (question.trim() || answer.trim()) {
+      if (!validateFAQ()) return;
+
+      const finalFAQs = [
+        ...faqs,
+        {
+          question: question.trim(),
+          answer: answer.trim(),
+        },
+      ];
+
+      onComplete(finalFAQs);
+      return;
+    }
+
+    // No current FAQ was entered.
+    // Require at least one FAQ before completing setup.
+    if (faqs.length === 0) {
+      setError("Please add at least one FAQ before continuing.");
+      return;
+    }
+
+    // Current fields are empty, but previously added FAQs exist.
+    onComplete(faqs);
   }
 
   return (
@@ -84,11 +95,8 @@ export default function CompleteStep({
       {/* Header */}
       <div
         className="
-          mx-auto
-          flex max-w-xl flex-col
-          items-center
-          gap-2
-          text-center
+          mx-auto flex flex-col
+          items-center gap-1 text-center
         "
       >
         <h1
@@ -100,8 +108,9 @@ export default function CompleteStep({
             lg:text-4xl
           "
         >
-          Teach Arika the basics
+          Teach Arika the Basics
         </h1>
+
         <p className="max-w-md text-sm leading-6 text-(--color-text-subtle) sm:text-base">
           Give Arika the core rules it needs to start answering customers
           accurately.
@@ -113,44 +122,108 @@ export default function CompleteStep({
         <StepCircles step={4} />
       </div>
 
-      <div className="mx-auto w-full max-w-2xl">
+      {/* FAQ form */}
+      <div className="mx-auto w-full">
         <div className="flex flex-col gap-5">
           <TextField
-            id="frequently-asked-questions"
+            id="frequently-asked-question"
             label="What is your most frequently asked question?"
-            placeholder="e.g., Do you do nationwide delivery? or Do you sell wholesale?"
+            placeholder="e.g., Do you do nationwide delivery?"
             value={question}
-            onChange={setQuestion}
+            onChange={(value) => {
+              setQuestion(value);
+              setError("");
+              onClearSubmitError?.();
+            }}
+          />
+          <TextField
+            id="preferred-answer"
+            label="Your Preferred Answer"
+            placeholder="e.g., Yes, wholesale starts at 12 pieces. Send a DM for the rate card."
+            value={answer}
+            onChange={(value) => {
+              setAnswer(value);
+              setError("");
+              onClearSubmitError?.();
+            }}
           />
 
-          <div className="flex flex-col gap-1.5 text-left">
-            <TextField
-              id="preferred-answer"
-              label="Your Preferred Answer"
-              placeholder="e.g., Yes, wholesale starts at 12 pieces. Send a DM for the rate card"
-              value={answer}
-              onChange={setAnswer}
-            />
-            <p className="text-sm text-(--color-text-subtle)">
-              Arika will use this to automatically reply whenever a customer
-              asks something similar. Don't worry, you can easily add more FAQs
-              from your dashboard
+          {error && (
+            <p
+              role="alert"
+              className="text-sm text-red-600 dark:text-(--color-text-error)"
+            >
+              {error}
             </p>
-          </div>
+          )}
         </div>
 
-        <div className="flex gap-3 items-center  mt-8">
+        {/* Added FAQs */}
+        {faqs.length > 0 && (
+          <div className="mt-5 flex flex-col gap-2 text-left">
+            <p className="text-sm font-semibold text-(--color-text)">
+              {faqs.length} FAQ{faqs.length > 1 ? "s" : ""} added
+            </p>
+
+            <div className="flex flex-col gap-2">
+              {faqs.map((faq, index) => (
+                <div
+                  key={`${faq.question}-${index}`}
+                  className="
+                    rounded-2xl
+                    bg-(--color-bg-surface)
+                    px-4 py-3
+                  "
+                >
+                  <p className="text-sm font-semibold text-(--color-text)">
+                    {faq.question}
+                  </p>
+
+                  <p className="mt-1 text-sm text-(--color-text-subtle)">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* submit error */}
+        {submitError && (
+          <div
+            role="alert"
+            className="mt-5 text-sm text-red-600 mb-3 dark:text-(--color-text-error)"
+          >
+            {submitError}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="mt-8 flex items-center gap-3">
           <button
             type="button"
             onClick={handleAddMore}
-            className="rounded-full border mt-6 mb-4 bg-(--color-action-primary) text-(--color-text-on-primary) text-sm font-semibold px-5 py-3 hover:bg-(--color-action-primary) hover:text-white transition-colors"
+            disabled={isSubmitting}
+            className="
+              rounded-full
+              border border-(--color-action-primary)
+              px-5 py-3
+              text-sm font-semibold
+              text-(--color-action-primary)
+              transition-colors
+              hover:bg-(--color-action-primary)
+              hover:text-white
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
           >
-            Add More
+            Add FAQ
           </button>
+
           <ContinueButton
             onClick={handleContinue}
             fullWidth={false}
-            label="Continue"
+            label={isSubmitting ? "Saving..." : "Continue"}
           />
         </div>
       </div>

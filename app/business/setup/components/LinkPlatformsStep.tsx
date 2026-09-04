@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
 import Image from "next/image";
+
 const InstagramIcon = () => (
   <svg
     width="32"
@@ -53,31 +55,76 @@ function ConnectMetaButton({
       type="button"
       onClick={onConnect}
       disabled={connected}
-      className={`shrink-0 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
-        connected
-          ? "bg-white text-(--color-action-primary) px-3 py-1.5 sm:py-1.5"
-          : "bg-(--color-action-primary) text-(--color-text-on-primary) px-4 py-2 sm:w-full sm:py-2.5 hover:bg-(--color-action-primary) hover:text-white"
-      }`}
+      aria-pressed={connected}
+      className={`
+        shrink-0 rounded-full
+        text-xs font-semibold
+        transition-colors
+        sm:text-sm
+        ${
+          connected
+            ? `
+              bg-white
+              px-3 py-1.5
+              text-(--color-action-primary)
+            `
+            : `
+              bg-(--color-action-primary)
+              px-4 py-2
+              text-white
+              hover:opacity-90
+              sm:w-full sm:py-2.5
+            `
+        }
+      `}
     >
       {connected ? "Connected" : "Connect via Meta"}
     </button>
   );
 }
 
+type LinkPlatformsStepProps = {
+  onComplete: () => void;
+  isSubmitting?: boolean;
+  initialInstagramConnected?: boolean;
+  initialWhatsAppConnected?: boolean;
+  onInstagramConnected?: (connected: boolean) => void;
+  onWhatsAppConnected?: (connected: boolean) => void;
+};
+
 export default function LinkPlatformsStep({
   onComplete,
-}: {
-  onComplete: () => void;
-}) {
-  const [instagramConnected, setInstagramConnected] = useState(false);
-  const [whatsappConnected, setWhatsappConnected] = useState(false);
+  isSubmitting = false,
+  initialInstagramConnected = false,
+  initialWhatsAppConnected = false,
+  onInstagramConnected,
+  onWhatsAppConnected,
+}: LinkPlatformsStepProps) {
+  const [instagramConnected, setInstagramConnected] = useState(
+    initialInstagramConnected,
+  );
+
+  const [whatsappConnected, setWhatsAppConnected] = useState(
+    initialWhatsAppConnected,
+  );
+
+  const canComplete = instagramConnected || whatsappConnected;
 
   function handleConnectInstagram() {
     setInstagramConnected(true);
+    onInstagramConnected?.(true);
   }
+  // function handleConnectInstagram() {
+  //   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/meta/instagram`;
+  // }
 
   function handleConnectWhatsApp() {
-    setWhatsappConnected(true);
+    setWhatsAppConnected(true);
+    onWhatsAppConnected?.(true);
+  }
+
+  function handleContinue() {
+    onComplete();
   }
 
   return (
@@ -94,24 +141,36 @@ export default function LinkPlatformsStep({
       <div
         className="
           mx-auto
-          flex max-w-xl flex-col
+          flex max-w-xl
+          flex-col
           items-center
-          gap-2
+          gap-1
           text-center
         "
       >
         <h1
           id="link-platform-heading"
           className="
-            text-2xl font-black leading-tight
+            text-2xl
+            font-black
+            leading-tight
             text-(--color-text)
             sm:text-3xl
             lg:text-4xl
           "
         >
-          Link your platforms
+          Link Your Platforms
         </h1>
-        <p className="max-w-xl text-sm leading-6 text-(--color-text-subtle) sm:text-base">
+
+        <p
+          className="
+            max-w-xl
+            text-sm
+            leading-6
+            text-(--color-text-subtle)
+            sm:text-base
+          "
+        >
           Securely connect your accounts through Meta's official platform so
           that Arika can manage your customer conversations.
         </p>
@@ -122,34 +181,93 @@ export default function LinkPlatformsStep({
         <StepCircles step={3} />
       </div>
 
-      <div className="mx-auto w-full max-w-2xl">
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="flex flex-row sm:flex-col items-center sm:items-stretch justify-between sm:justify-start gap-3 sm:gap-4 flex-1 rounded-2xl bg-(--color-bg-surface) p-4 sm:p-5">
+      {/* Platform cards */}
+      <div className="mx-auto w-full">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
+          {/* Instagram */}
+          <div
+            className="
+              flex flex-row
+              flex-1
+              items-center
+              justify-between
+              gap-3
+              rounded-2xl
+              bg-(--color-bg-surface)
+              p-4
+              sm:flex-col
+              sm:items-stretch
+              sm:justify-start
+              sm:gap-4
+              sm:p-5
+            "
+          >
             <div className="flex items-center gap-3">
               <InstagramIcon />
+
               <div className="flex flex-col text-left">
-                <span className="lg:text-sm text-xs font-semibold text-(--color-text)">
+                <span
+                  className="
+                    text-xs
+                    font-semibold
+                    text-(--color-text)
+                    sm:text-sm
+                  "
+                >
                   Instagram DMs
                 </span>
-                <span className="text-[8px] text-subtle">Connect via Meta</span>
+
+                <span className="text-[10px] text-(--color-text-subtle)">
+                  Connect via Meta
+                </span>
               </div>
             </div>
+
             <ConnectMetaButton
               connected={instagramConnected}
               onConnect={handleConnectInstagram}
             />
           </div>
 
-          <div className="flex flex-row sm:flex-col items-center sm:items-stretch justify-between sm:justify-start gap-3 sm:gap-4 flex-1 rounded-2xl bg-(--color-bg-surface) p-4 sm:p-5">
+          {/* WhatsApp */}
+          <div
+            className="
+              flex flex-row
+              flex-1
+              items-center
+              justify-between
+              gap-3
+              rounded-2xl
+              bg-(--color-bg-surface)
+              p-4
+              sm:flex-col
+              sm:items-stretch
+              sm:justify-start
+              sm:gap-4
+              sm:p-5
+            "
+          >
             <div className="flex items-center gap-3">
               <WhatsAppIcon />
+
               <div className="flex flex-col text-left">
-                <span className="lg:text-sm text-xs font-semibold text-(--color-text)">
+                <span
+                  className="
+                    text-xs
+                    font-semibold
+                    text-(--color-text)
+                    sm:text-sm
+                  "
+                >
                   WhatsApp
                 </span>
-                <span className="text-[8px] text-subtle">Connect via Meta</span>
+
+                <span className="text-[10px] text-(--color-text-subtle)">
+                  Connect via Meta
+                </span>
               </div>
             </div>
+
             <ConnectMetaButton
               connected={whatsappConnected}
               onConnect={handleConnectWhatsApp}
@@ -157,7 +275,29 @@ export default function LinkPlatformsStep({
           </div>
         </div>
 
-        <ContinueButton onClick={onComplete} />
+        {/* Requirement message */}
+        {/* {!canComplete && (
+          <p
+            role="alert"
+            className="
+              mt-4
+              text-center
+              text-sm
+              text-(--color-text-error)
+            "
+          >
+            Please connect at least your Instagram or WhatsApp before continuing.
+          </p>
+        )} */}
+
+        {/* Continue */}
+        <div className="mt-7 sm:mt-8">
+          <ContinueButton
+            label={isSubmitting ? "Saving..." : "Continue"}
+            onClick={handleContinue}
+            disabled={isSubmitting || !canComplete}
+          />
+        </div>
       </div>
     </section>
   );

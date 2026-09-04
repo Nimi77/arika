@@ -40,7 +40,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            className="text-(--color-action-primary) font-semibold hover:underline transition-colors"
+            className="text-(--color-text-action) font-semibold hover:underline transition-colors"
           >
             Login
           </Link>
@@ -91,14 +91,14 @@ export default function RegisterPage() {
             By continuing, you agree to Arika's{" "}
             <a
               href="/terms"
-              className="text-(--color-action-primary) hover:underline"
+              className="text-(--color-text-action) hover:underline"
             >
               Terms of Service
             </a>{" "}
             and{" "}
             <a
               href="/privacy"
-              className="text-(--color-action-primary) hover:underline"
+              className="text-(--color-text-action) hover:underline"
             >
               Privacy Policy
             </a>

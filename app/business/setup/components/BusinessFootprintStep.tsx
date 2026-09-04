@@ -2,6 +2,7 @@
 
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
+import TextField from "./TextField";
 
 type FieldProps = {
   id: string;
@@ -11,48 +12,6 @@ type FieldProps = {
   onChange: (value: string) => void;
   large?: boolean;
 };
-
-function TextField({
-  id,
-  label,
-  placeholder,
-  value,
-  onChange,
-  large,
-}: FieldProps) {
-  return (
-    <div className="flex w-full flex-col gap-1.5 text-left">
-      <label
-        htmlFor={id}
-        className={`font-semibold text-(--color-secondary) ${
-          large ? "text-sm sm:text-base" : "text-sm"
-        }`}
-      >
-        {label}
-      </label>
-
-      <input
-        id={id}
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="
-          min-h-11 w-full
-          rounded-full
-          border border-transparent
-          bg-(--color-bg-surface)
-          px-4 py-3
-          text-sm text-(--color-text)
-          placeholder:text-neutral-500
-          outline-none
-          transition-colors
-          focus:border-(--color-action-primary)
-        "
-      />
-    </div>
-  );
-}
 
 function TextAreaField({
   id,
@@ -131,6 +90,9 @@ export default function BusinessFootprintStep({
   isSubmitting,
   onComplete,
 }: BusinessFootprintStepProps) {
+  // butoon enabled only if all required fields are filled
+  const canComplete = description.trim() !== "" && operatingHours.trim() !== "";
+
   return (
     <section
       aria-labelledby="business-footprint-heading"
@@ -147,7 +109,7 @@ export default function BusinessFootprintStep({
           mx-auto
           flex max-w-xl flex-col
           items-center
-          gap-2
+          gap-1
           text-center
         "
       >
@@ -160,7 +122,7 @@ export default function BusinessFootprintStep({
             lg:text-4xl
           "
         >
-          Your business footprint
+          Your Business Footprint
         </h1>
 
         <p className="max-w-md text-sm leading-6 text-(--color-text-subtle) sm:text-base">
@@ -229,7 +191,7 @@ export default function BusinessFootprintStep({
           <ContinueButton
             onClick={onComplete}
             label={isSubmitting ? "Saving..." : "Continue"}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !canComplete}
           />
         </div>
       </div>

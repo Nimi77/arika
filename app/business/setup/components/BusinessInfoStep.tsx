@@ -8,6 +8,7 @@ import "react-phone-number-input/style.css";
 
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
+import TextField from "./TextField";
 
 const BUSINESS_CATEGORIES = [
   "Fashion & Apparel",
@@ -50,44 +51,6 @@ function OptionButton({ label, selected, onClick }: OptionButtonProps) {
   );
 }
 
-type FieldProps = {
-  id: string;
-  label: string;
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
-};
-
-function TextField({ id, label, placeholder, value, onChange }: FieldProps) {
-  return (
-    <div className="flex w-full flex-col gap-1.5 text-left">
-      <label
-        htmlFor={id}
-        className="text-sm font-semibold text-(--color-secondary)"
-      >
-        {label}
-      </label>
-
-      <input
-        id={id}
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="
-          min-h-11 w-full
-          rounded-full
-          border border-transparent
-          px-4 py-3
-          outline-none
-          transition-colors
-          hover:border-(--color-action-primary)
-          focus:border-(--color-action-primary)    
-        "
-      />
-    </div>
-  );
-}
 
 type BusinessInfoStepProps = {
   businessName: string;
@@ -101,6 +64,12 @@ type BusinessInfoStepProps = {
 
   setLogoFile: (file: File | null) => void;
 
+  paymentMethods: string;
+  setPaymentMethods: (value: string) => void;
+
+  returnsPolicy: string;
+  setReturnsPolicy: (value: string) => void;
+
   onComplete: () => void;
 };
 
@@ -112,19 +81,24 @@ export default function BusinessInfoStep({
   phoneNumber,
   setPhoneNumber,
   setLogoFile,
+  paymentMethods,
+  setPaymentMethods,
+  returnsPolicy,
+  setReturnsPolicy,
   onComplete,
 }: BusinessInfoStepProps) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [deliveryFee, setDeliveryFee] = useState("");
-  const [paymentMethods, setPaymentMethods] = useState("");
-  const [returnsPolicy, setReturnsPolicy] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canComplete =
     businessName.trim() !== "" &&
+    Boolean(logoPreview) &&
     Boolean(businessCategory) &&
-    Boolean(phoneNumber);
+    Boolean(phoneNumber) &&
+    Boolean(paymentMethods) &&
+    Boolean(returnsPolicy);
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -160,7 +134,7 @@ export default function BusinessInfoStep({
         className="
           mx-auto mb-6
           flex max-w-xl flex-col items-center
-          gap-2 text-center
+          gap-1 text-center
           sm:mb-8
           lg:mb-10
         "
@@ -174,7 +148,7 @@ export default function BusinessInfoStep({
             lg:text-4xl
           "
         >
-          Tell us about your business
+          Tell us about your Business
         </h1>
 
         <p className="max-w-md text-sm leading-6 text-(--color-text-subtle) sm:text-base">
@@ -363,14 +337,16 @@ export default function BusinessInfoStep({
             placeholder="e.g. Bank transfer to GTBank or card via Paystack"
             value={paymentMethods}
             onChange={setPaymentMethods}
+            textOnly
           />
 
           <TextField
             id="returns-policy"
-            label="Returns & exchanges"
+            label="Returns & Exchanges"
             placeholder="e.g. No cash refunds, exchanges within 48 hours"
             value={returnsPolicy}
             onChange={setReturnsPolicy}
+            textOnly
           />
         </div>
 

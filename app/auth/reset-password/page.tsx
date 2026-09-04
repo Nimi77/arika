@@ -113,7 +113,10 @@ function ResetPasswordContent() {
         </ul>
 
         {errors.form && (
-          <p role="alert" className="text-center text-xs text-red-600">
+          <p
+            role="alert"
+            className="text-center text-xs text-red-600 dark:text-(--color-text-error)"
+          >
             {errors.form}
           </p>
         )}

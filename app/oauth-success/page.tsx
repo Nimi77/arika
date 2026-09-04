@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { storeAuthTokens } from "@/lib/api";
+import { storeAuthToken } from "@/lib/api";
 
 function OAuthSuccessContent() {
   const router = useRouter();
@@ -11,14 +11,14 @@ function OAuthSuccessContent() {
 
   useEffect(() => {
     const accessToken = searchParams.get("accessToken");
-    const refreshToken = searchParams.get("refreshToken");
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
       setError("Missing authentication details. Please try signing in again.");
       return;
     }
 
-    storeAuthTokens({ accessToken, refreshToken });
+    storeAuthToken(accessToken);
+
     router.push("/business/setup");
   }, [searchParams, router]);
 
@@ -26,7 +26,9 @@ function OAuthSuccessContent() {
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
       {error ? (
         <>
-          <p className="text-sm text-red-600 mb-4">{error}</p>
+          <p className="text-sm text-red-600 mb-4 dark:text-(--color-text-error)">
+            {error}
+          </p>
           <button
             type="button"
             onClick={() => router.push("/auth/login")}

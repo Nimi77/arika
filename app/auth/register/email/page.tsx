@@ -8,7 +8,7 @@ import PasswordInput from "../../components/PasswordInput";
 import FormBanner from "../../components/FormBanner";
 import AuthInput from "../../components/AuthInput";
 
-import { apiFetch, storeAuthTokens } from "@/lib/api";
+import { apiFetch, storeAuthToken } from "@/lib/api";
 
 const REQUIREMENTS = [
   {
@@ -206,7 +206,7 @@ export default function RegisterPage() {
         }),
       });
 
-      storeAuthTokens(data.data);
+      storeAuthToken(data.data);
 
       router.push(
         `/auth/verify-email?email=${encodeURIComponent(formData.email.trim())}`,
@@ -226,6 +226,7 @@ export default function RegisterPage() {
           ...prev,
           email: "We couldn't verify this email. Please try again.",
         }));
+        console.log(errors)
       }
     } finally {
       setIsSubmitting(false);
@@ -239,7 +240,7 @@ export default function RegisterPage() {
         <div className="mb-4">
           <FormBanner
             message="An account with this email already exists."
-            actionLabel="Sign in instead"
+            actionLabel="Log In"
             onAction={() => router.push("/auth/login")}
           />
         </div>
@@ -332,7 +333,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            className="font-medium text-(--color-action-primary) transition-colors hover:underline"
+            className="font-medium text-(--color-text-action) transition-colors hover:underline"
           >
             Login
           </Link>

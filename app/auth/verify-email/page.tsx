@@ -51,27 +51,37 @@ function VerifyEmailContent() {
     if (isResending) return;
 
     setIsResending(true);
-    setCooldown(50);
+    setVerifyError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await apiFetch("/auth/resend-verification", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      setCooldown(50);
+
+      const timer = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setIsResending(false);
+            return 0;
+          }
+
+          return prev - 1;
+        });
+      }, 1000);
     } catch (error) {
-      // console.error("Failed to resend verification email:", error);
       setIsResending(false);
       setCooldown(0);
-      return;
+      setVerifyError(
+        "Unable to resend the verification email. Please try again.",
+      );
     }
-
-    const timer = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setIsResending(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   }
 
   // Success state — verification just completed
@@ -106,7 +116,9 @@ function VerifyEmailContent() {
         )}
         {verifyError && (
           <>
-            <p className="text-sm text-red-600 text-center">{verifyError}</p>
+            <p className="text-sm text-red-600 text-center dark:text-(--color-text-error)">
+              {verifyError}
+            </p>
             <Link
               href="/auth/register/email"
               className="text-sm font-medium text-(--color-action-primary) hover:underline"

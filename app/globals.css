@@ -11,7 +11,9 @@
 
   --color-text-primary: #fafafa;
   --color-text-secondary: #d4d4d4;
+  --color-text-action: #665eff;
   --color-text-subtle: #a3a3a3;
+  --color-text-error: #ff3b30;
 
   --color-text-on-primary: #171717;
   --color-text-on-secondary: #e5e5e5;
@@ -30,7 +32,9 @@
 
   --color-text-primary: #171717;
   --color-text-secondary: #525252;
+  --color-text-action: #635bff;
   --color-text-subtle: #737373;
+
   --color-text-on-primary: #ffffff;
   --color-text-on-secondary: #e5e5e5;
 

@@ -2,13 +2,11 @@ type StepCirclesProps = {
   step: 1 | 2 | 3 | 4;
 };
 
-export default function StepCircles({
-  step,
-}: StepCirclesProps) {
+export default function StepCircles({ step }: StepCirclesProps) {
   return (
     <nav
       aria-label={`Registration progress: step ${step} of 4`}
-      className="mx-auto w-full max-w-2xl"
+      className="mx-auto w-full"
     >
       <ol className="flex w-full items-center justify-center">
         {[1, 2, 3, 4].map((number, index) => {

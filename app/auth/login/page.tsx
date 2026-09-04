@@ -6,7 +6,7 @@ import PasswordInput from "../components/PasswordInput";
 import { useState } from "react";
 import AuthInput from "../components/AuthInput";
 import { useRouter } from "next/navigation";
-import { apiFetch, storeAuthTokens } from "@/lib/api";
+import { apiFetch, storeAuthToken } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      storeAuthTokens(data.data);
+      storeAuthToken(data.data);
       router.push("/business/setup");
     } catch (err: any) {
       const backendMessage =
@@ -107,7 +107,7 @@ export default function LoginPage() {
           New to Arika?{" "}
           <Link
             href="/auth/register"
-            className="text-(--color-action-primary) font-medium hover:underline transition-colors"
+            className="text-(--color-text-action) font-medium hover:underline transition-colors"
           >
             Get Started
           </Link>

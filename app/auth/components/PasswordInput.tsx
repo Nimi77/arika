@@ -54,7 +54,10 @@ export default function PasswordInput({
         </button>
       </div>
       {error && (
-        <p id={`${id}-error`} className="text-sm text-red-600">
+        <p
+          id={`${id}-error`}
+          className="text-sm text-red-600 dark:text-(--color-text-error)"
+        >
           {error}
         </p>
       )}

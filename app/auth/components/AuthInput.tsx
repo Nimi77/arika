@@ -49,7 +49,11 @@ export default function AuthInput({
       />
 
       {error && showErrorMessage && (
-        <p id={errorId} className="text-sm text-red-600" role="alert">
+        <p
+          id={errorId}
+          className="text-sm text-red-600 dark:text-(--color-text-error)"
+          role="alert"
+        >
           {error}
         </p>
       )}
