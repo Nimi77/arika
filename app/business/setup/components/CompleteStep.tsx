@@ -54,33 +54,24 @@ export default function CompleteStep({
     setAnswer("");
   }
 
-  function handleContinue() {
-    // If there is text in either field, validate and include it.
-    if (question.trim() || answer.trim()) {
-      if (!validateFAQ()) return;
+ function handleContinue() {
+   if (question.trim() || answer.trim()) {
+     if (!validateFAQ()) return;
 
-      const finalFAQs = [
-        ...faqs,
-        {
-          question: question.trim(),
-          answer: answer.trim(),
-        },
-      ];
+     const finalFAQs = [
+       ...faqs,
+       {
+         question: question.trim(),
+         answer: answer.trim(),
+       },
+     ];
 
-      onComplete(finalFAQs);
-      return;
-    }
+     onComplete(finalFAQs);
+     return;
+   }
 
-    // No current FAQ was entered.
-    // Require at least one FAQ before completing setup.
-    if (faqs.length === 0) {
-      setError("Please add at least one FAQ before continuing.");
-      return;
-    }
-
-    // Current fields are empty, but previously added FAQs exist.
-    onComplete(faqs);
-  }
+   onComplete(faqs);
+ }
 
   return (
     <section

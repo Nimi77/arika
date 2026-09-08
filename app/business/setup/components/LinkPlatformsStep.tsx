@@ -4,44 +4,7 @@ import { useState } from "react";
 
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
-import Image from "next/image";
-
-const InstagramIcon = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-    className="shrink-0"
-  >
-    <defs>
-      <linearGradient id="ig-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#FFDD55" />
-        <stop offset="50%" stopColor="#FF543E" />
-        <stop offset="100%" stopColor="#C837AB" />
-      </linearGradient>
-    </defs>
-    <rect width="24" height="24" rx="6" fill="url(#ig-gradient)" />
-    <path
-      fill="#fff"
-      d="M12 7.2a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6zm0 7.92a3.12 3.12 0 1 1 0-6.24 3.12 3.12 0 0 1 0 6.24zM18.4 7.03a1.12 1.12 0 1 1-2.24 0 1.12 1.12 0 0 1 2.24 0z"
-    />
-    <path
-      fill="#fff"
-      d="M16.98 3H7.02A4.03 4.03 0 0 0 3 7.02v9.96A4.03 4.03 0 0 0 7.02 21h9.96A4.03 4.03 0 0 0 21 16.98V7.02A4.03 4.03 0 0 0 16.98 3zm2.5 13.98a2.5 2.5 0 0 1-2.5 2.5H7.02a2.5 2.5 0 0 1-2.5-2.5V7.02a2.5 2.5 0 0 1 2.5-2.5h9.96a2.5 2.5 0 0 1 2.5 2.5v9.96z"
-    />
-  </svg>
-);
-
-const WhatsAppIcon = () => (
-  <Image
-    src="/whatsapp-business.jpg"
-    alt="WhatsApp Business"
-    width={32}
-    height={32}
-    className="shrink-0 rounded-lg object-cover"
-  />
-);
+import { InstagramIcon, WhatsAppIcon } from "@/app/svg-icons";
 
 function ConnectMetaButton({
   connected,
@@ -107,8 +70,6 @@ export default function LinkPlatformsStep({
   const [whatsappConnected, setWhatsAppConnected] = useState(
     initialWhatsAppConnected,
   );
-
-  const canComplete = instagramConnected || whatsappConnected;
 
   function handleConnectInstagram() {
     setInstagramConnected(true);
@@ -259,7 +220,7 @@ export default function LinkPlatformsStep({
                     sm:text-sm
                   "
                 >
-                  WhatsApp
+                  WhatsApp Business
                 </span>
 
                 <span className="text-[10px] text-(--color-text-subtle)">
@@ -275,27 +236,12 @@ export default function LinkPlatformsStep({
           </div>
         </div>
 
-        {/* Requirement message */}
-        {/* {!canComplete && (
-          <p
-            role="alert"
-            className="
-              mt-4
-              text-center
-              text-sm
-              text-(--color-text-error)
-            "
-          >
-            Please connect at least your Instagram or WhatsApp before continuing.
-          </p>
-        )} */}
-
         {/* Continue */}
         <div className="mt-7 sm:mt-8">
           <ContinueButton
             label={isSubmitting ? "Saving..." : "Continue"}
             onClick={handleContinue}
-            disabled={isSubmitting || !canComplete}
+            disabled={isSubmitting}
           />
         </div>
       </div>

@@ -51,7 +51,6 @@ function OptionButton({ label, selected, onClick }: OptionButtonProps) {
   );
 }
 
-
 type BusinessInfoStepProps = {
   businessName: string;
   setBusinessName: (value: string) => void;
@@ -92,13 +91,7 @@ export default function BusinessInfoStep({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const canComplete =
-    businessName.trim() !== "" &&
-    Boolean(logoPreview) &&
-    Boolean(businessCategory) &&
-    Boolean(phoneNumber) &&
-    Boolean(paymentMethods) &&
-    Boolean(returnsPolicy);
+  const canComplete = businessName.trim() !== "";
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

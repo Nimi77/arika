@@ -20,6 +20,7 @@
 
   --color-neutral: #d4d4d4;
   --color-focus: #a5b4fc;
+  --color-warning: #d97706;
 }
 [data-theme="light"] {
   --color-bg-base: #ffffff;
@@ -40,6 +41,7 @@
 
   --color-neutral: #d4d4d4;
   --color-focus: #c7d2fe;
+  --color-warning: #b45309;
 }
 
 @layer base {

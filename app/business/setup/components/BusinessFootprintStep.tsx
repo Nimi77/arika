@@ -90,8 +90,6 @@ export default function BusinessFootprintStep({
   isSubmitting,
   onComplete,
 }: BusinessFootprintStepProps) {
-  // butoon enabled only if all required fields are filled
-  const canComplete = description.trim() !== "" && operatingHours.trim() !== "";
 
   return (
     <section
@@ -189,9 +187,9 @@ export default function BusinessFootprintStep({
         {/* Continue */}
         <div className="mt-7 sm:mt-8">
           <ContinueButton
+            label="Continue"
             onClick={onComplete}
-            label={isSubmitting ? "Saving..." : "Continue"}
-            disabled={isSubmitting || !canComplete}
+            disabled={isSubmitting}
           />
         </div>
       </div>

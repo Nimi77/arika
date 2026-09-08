@@ -94,6 +94,14 @@ export default function LoginPage() {
           onChange={(value) => handleChange("password", value)}
           error={errors.password}
         />
+        <div className="-mt-2 flex justify-end">
+          <Link
+            href="/auth/forgot-password"
+            className="text-sm font-medium text-(--color-action-primary) transition-colors hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <button
           type="submit"
           disabled={isSubmitting}

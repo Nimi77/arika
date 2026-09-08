@@ -226,7 +226,7 @@ export default function RegisterPage() {
           ...prev,
           email: "We couldn't verify this email. Please try again.",
         }));
-        console.log(errors)
+        console.log(errors);
       }
     } finally {
       setIsSubmitting(false);
@@ -246,7 +246,13 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Create Arika account"
+        aria-busy={isSubmitting}
+        className="flex flex-col gap-4"
+      >
         {/* Full Name */}
         <AuthInput
           id="fullName"
