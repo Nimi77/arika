@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logo from "@/public/logo.svg";
@@ -22,41 +23,57 @@ export default function AuthLayout({
   const isResetPasswordPage = pathname.startsWith("/auth/reset-password");
   const isForgotPasswordPage = pathname.startsWith("/auth/forgot-password");
 
+  /*
+   * The verify-email page should only show the logo
+   * when the user is on the default verification state.
+   *
+   * When a token exists, the user is coming from the
+   * verification link, so the logo is hidden.
+   */
+  const hasVerificationToken =
+    isVerifyEmailPage &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("token");
+
+  const shouldShowLogo =
+    !hideLogo &&
+    !isResetPasswordPage &&
+    !isForgotPasswordPage &&
+    (!isVerifyEmailPage || !hasVerificationToken);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       {/* Logo */}
-      {!hideLogo &&
-        !isResetPasswordPage &&
-        !isForgotPasswordPage && (
-          <div className="mb-6 flex flex-col items-center gap-2">
-            <Link href="/" aria-label="Arika home" className="mb-4">
-              <Image
-                src={logo}
-                alt=""
-                width={70}
-                height={70}
-                className="h-12 w-auto"
-                priority
-              />
-            </Link>
+      {shouldShowLogo && (
+        <div className="mb-6 flex flex-col items-center gap-2">
+          <Link href="/" aria-label="Arika home" className="mb-4">
+            <Image
+              src={logo}
+              alt=""
+              width={70}
+              height={70}
+              className="h-12 w-auto"
+              priority
+            />
+          </Link>
 
-            {!isVerifyEmailPage && !isResetPasswordPage && (
-              <div className="heading-text text-center">
-                <h1 className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
-                  {isRegisterPage
-                    ? "Create your Arika account"
-                    : "Welcome back to Arika"}
-                </h1>
+          {!isVerifyEmailPage && !isResetPasswordPage && (
+            <div className="heading-text text-center">
+              <h1 className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
+                {isRegisterPage
+                  ? "Create your Arika account"
+                  : "Welcome back to Arika"}
+              </h1>
 
-                <p className="text-sm text-(--color-text-subtle) max-w-100">
-                  {isRegisterPage
-                    ? "Manage customer conversations across all channels."
-                    : "Sign in to manage your customer conversations."}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+              <p className="max-w-100 text-sm text-(--color-text-subtle)">
+                {isRegisterPage
+                  ? "Manage customer conversations across all channels."
+                  : "Sign in to manage your customer conversations."}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Content */}
       <div className="auth-body w-full max-w-lg">{children}</div>

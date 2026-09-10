@@ -15,6 +15,7 @@ type CompleteStepProps = {
   onComplete: (faqs: FAQ[]) => void;
   isSubmitting?: boolean;
   submitError?: string | null;
+  submitSuccess?: boolean;
   onClearSubmitError?: () => void;
 };
 
@@ -22,6 +23,7 @@ export default function CompleteStep({
   onComplete,
   isSubmitting = false,
   submitError,
+  submitSuccess = false,
   onClearSubmitError,
 }: CompleteStepProps) {
   const [question, setQuestion] = useState("");
@@ -189,6 +191,17 @@ export default function CompleteStep({
           </div>
         )}
 
+        {submitSuccess && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mt-5 mb-3 text-sm text-(--color-action-primary)"
+          >
+            Your business information has been successfully saved. We’re taking
+            you to your dashboard...
+          </div>
+        )}
+
         {/* Actions */}
         <div className="mt-8 flex items-center gap-3">
           <button
@@ -214,7 +227,8 @@ export default function CompleteStep({
           <ContinueButton
             onClick={handleContinue}
             fullWidth={false}
-            label={isSubmitting ? "Saving..." : "Continue"}
+            disabled={isSubmitting}
+            label={isSubmitting ? "Saving..." : "Complete Setup"}
           />
         </div>
       </div>

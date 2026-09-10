@@ -32,9 +32,12 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  // Helper function to force a delay (e.g., 1500ms = 1.5 seconds)
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     setError("");
 
     if (!isValidEmail) {
@@ -45,16 +48,25 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      await apiFetch("/auth/forgot-password", {
-        method: "POST",
-        body: JSON.stringify({
-          email: email.trim(),
+      const [res] = await Promise.all([
+        apiFetch("/auth/forgot-password", {
+          method: "POST",
+          body: JSON.stringify({ email: email.trim() }),
         }),
-      });
+        delay(1500), // Forces a minimum 1.5s wait time
+      ]);
 
       setStep("check-email");
-    } catch {
-      setError("We couldn't send the reset link. Please try again.");
+    } catch (err: any) {
+      await delay(1500); 
+
+      if (err?.status === 404) {
+        setError(
+          "We couldn't find an account associated with this email address.",
+        );
+      } else {
+        setError("We couldn't send the reset link. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -71,14 +83,15 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      await apiFetch("/auth/forgot-password", {
-        method: "POST",
-        body: JSON.stringify({
-          email: email.trim(),
+      await Promise.all([
+        apiFetch("/auth/forgot-password", {
+          method: "POST",
+          body: JSON.stringify({ email: email.trim() }),
         }),
-      });
+        delay(1500),
+      ]);
     } catch {
-      setError("We couldn't resend the reset link. Please try again.");
+      setError("We couldn't resend the link. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -35,51 +35,95 @@ export default function BusinessSetupPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   function goToStep(step: Step) {
     setCurrentStep(step);
   }
 
-  async function submitBusinessSetup(finalFAQs: FAQ[]) {
-    setSubmitError(null);
-    setIsSubmitting(true);
+async function submitBusinessSetup(finalFAQs: FAQ[]) {
+  setSubmitError(null);
+  setSubmitSuccess(false);
+  setIsSubmitting(true);
 
-    try {
-      const formData = new FormData();
+  const minimumSavingTime = new Promise((resolve) =>
+    setTimeout(resolve, 2000),
+  );
 
-      formData.append("businessName", businessName);
-      formData.append("industry", businessCategory ?? "");
-      formData.append("phone", phoneNumber ?? "");
-      formData.append("description", description);
-      formData.append("businessHours", operatingHours);
-      formData.append("website", websiteUrl);
-      formData.append("paymentMethods", paymentMethods);
-      formData.append("returnsPolicy", returnsPolicy);
-      formData.append("instagram", instagramHandle);
-      formData.append("facebook", facebookHandle);
+  try {
+    const formData = new FormData();
+    formData.append("businessName", businessName);
+    formData.append("industry", businessCategory ?? "");
+    formData.append("phone", phoneNumber ?? "");
+    formData.append("description", description);
+    formData.append("businessHours", operatingHours);
+    formData.append("website", websiteUrl);
+    formData.append("paymentMethods", paymentMethods);
+    formData.append("returnsPolicy", returnsPolicy);
+    formData.append("instagram", instagramHandle);
+    formData.append("facebook", facebookHandle);
+    formData.append("instagramConnected", String(instagramConnected));
+    formData.append("whatsappConnected", String(whatsappConnected));
+    formData.append("faqs", JSON.stringify(finalFAQs));
 
-      formData.append("instagramConnected", String(instagramConnected));
-      formData.append("whatsappConnected", String(whatsappConnected));
-
-      formData.append("faqs", JSON.stringify(finalFAQs));
-
-      if (logoFile) {
-        formData.append("logo", logoFile);
-      }
-
-      await apiFetch("/business/setup", {
-        method: "POST",
-        headers: {},
-        body: formData,
-      });
-
-      router.push("/dashboard");
-    } catch (err) {
-      setSubmitError("We couldn't save your business setup. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    if (logoFile) {
+      formData.append("logo", logoFile);
     }
+
+    await Promise.all([
+      apiFetch("/business/setup", {
+        method: "POST",
+        body: formData,
+      }),
+      minimumSavingTime,
+    ]);
+
+    setSubmitSuccess(true);
+
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 2000);
+  } catch (err: any) {
+    await minimumSavingTime;
+
+    if (err?.status === 400) {
+      setSubmitError(
+        Array.isArray(err?.body?.message)
+          ? err.body.message.join(", ")
+          : err?.body?.message ||
+              "The business information provided is invalid.",
+      );
+    } else if (err?.status === 401) {
+      setSubmitError(
+        "Your session has expired. Please log in again.",
+      );
+    } else if (err?.status === 403) {
+      setSubmitError(
+        "You are not authorized to complete this business setup.",
+      );
+    } else if (err?.status === 409) {
+      setSubmitError(
+        err?.body?.message ||
+          "This business setup has already been completed.",
+      );
+    } else if (err?.status >= 500) {
+      setSubmitError(
+        "The server encountered an error while saving your business information.",
+      );
+    } else if (!err?.status) {
+      setSubmitError(
+        "Unable to connect to the server. Please check your internet connection.",
+      );
+    } else {
+      setSubmitError(
+        err?.body?.message ||
+          `Unable to save your business setup. Error: ${err.status}`,
+      );
+    }
+  } finally {
+    setIsSubmitting(false);
   }
+}
 
   return (
     <div className="flex w-full flex-col items-center py-10">
@@ -130,6 +174,7 @@ export default function BusinessSetupPage() {
           onComplete={submitBusinessSetup}
           isSubmitting={isSubmitting}
           submitError={submitError}
+          submitSuccess={submitSuccess}
           onClearSubmitError={() => setSubmitError(null)}
         />
       )}

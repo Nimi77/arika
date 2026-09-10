@@ -42,9 +42,9 @@ export default function RegisterPage() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
   const [emailExists, setEmailExists] = useState(false);
-  const [emailAuthFailed, setEmailAuthFailed] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   /*
@@ -81,7 +81,8 @@ export default function RegisterPage() {
     // Clear email-related API banners when the email changes.
     if (field === "email") {
       setEmailExists(false);
-      setEmailAuthFailed(false);
+      setEmailNotVerified(false);
+      setFormError("");
     }
 
     /*
@@ -186,8 +187,10 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    // Clear previous API/account messages.
     setEmailExists(false);
-    setEmailAuthFailed(false);
+    setEmailNotVerified(false);
+    setFormError("");
 
     // Run complete validation before submitting.
     if (!validateForm()) {
@@ -196,15 +199,25 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
 
+    const minimumLoadingTime = new Promise((resolve) =>
+      setTimeout(resolve, 800),
+    );
+
     try {
-      const data = await apiFetch("/auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          fullName: formData.fullName.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
+      const [data] = await Promise.all([
+        apiFetch("/auth/register", {
+          method: "POST",
+          body: JSON.stringify({
+            fullName: formData.fullName.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+          }),
         }),
-      });
+
+        // Ensures "Creating account..." is visible briefly
+        // even when the API responds very quickly.
+        minimumLoadingTime,
+      ]);
 
       storeAuthToken(data.data);
 
@@ -212,21 +225,22 @@ export default function RegisterPage() {
         `/auth/verify-email?email=${encodeURIComponent(formData.email.trim())}`,
       );
     } catch (err: any) {
+      // Wait for the minimum loading duration even if
+      // the API responds very quickly with an error.
+      await minimumLoadingTime;
+
       if (err?.status === 409) {
-        setEmailExists(true);
-
-        setErrors((prev) => ({
-          ...prev,
-          email: "This email is already registered",
-        }));
+        if (err?.body?.data?.emailVerified === false) {
+          setEmailNotVerified(true);
+          setFormError(
+            "This email is already registered but hasn't been verified.",
+          );
+        } else {
+          setEmailExists(true);
+          setFormError("An account with this email already exists.");
+        }
       } else {
-        setEmailAuthFailed(true);
-
-        setErrors((prev) => ({
-          ...prev,
-          email: "We couldn't verify this email. Please try again.",
-        }));
-        console.log(errors);
+        setFormError("We couldn't create your account. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -235,7 +249,7 @@ export default function RegisterPage() {
 
   return (
     <div className="email-registration-page">
-      {/* Existing account banner */}
+      {/* Existing verified account banner */}
       {emailExists && (
         <div className="mb-4">
           <FormBanner
@@ -245,7 +259,29 @@ export default function RegisterPage() {
           />
         </div>
       )}
-
+      {/* Existing but unverified account banner */}
+      {emailNotVerified && (
+        <div className="mb-4">
+          <FormBanner
+            message="An account with this email already exists but hasn't been verified."
+            actionLabel="Verify Email"
+            onAction={() =>
+              router.push(
+                `/auth/verify-email?email=${encodeURIComponent(
+                  formData.email.trim(),
+                )}`,
+              )
+            }
+          />
+        </div>
+      )}
+      {/* General form/API error */}
+      {!emailExists && !emailNotVerified && formError && (
+        <div className="mb-4">
+          <FormBanner message={formError} />
+        </div>
+      )}
+      
       <form
         onSubmit={handleSubmit}
         noValidate
