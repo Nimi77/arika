@@ -36,7 +36,7 @@ export default function RootLayout({
     >
       <body>
         <NextThemeProvider>
-          <div>{children}</div>
+          <>{children}</>
         </NextThemeProvider>
       </body>
     </html>

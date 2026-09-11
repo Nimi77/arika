@@ -25,9 +25,7 @@ function TextAreaField({
     <div className="flex w-full flex-col gap-1.5 text-left">
       <label
         htmlFor={id}
-        className={`font-semibold text-(--color-secondary) ${
-          large ? "text-sm sm:text-base" : "text-sm"
-        }`}
+        className="font-semibold text-sm text-(--color-secondary)"
       >
         {label}
       </label>

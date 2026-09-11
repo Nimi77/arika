@@ -115,31 +115,13 @@ export default function BusinessInfoStep({
   return (
     <section
       aria-labelledby="business-info-heading"
-      className="
-        mx-auto w-full max-w-2xl
-        px-4 py-6
-        sm:px-6 sm:py-8
-        lg:px-8 lg:py-10
-      "
+      className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10"
     >
       {/* Header */}
-      <div
-        className="
-          mx-auto mb-6
-          flex max-w-xl flex-col items-center
-          gap-1 text-center
-          sm:mb-8
-          lg:mb-10
-        "
-      >
+      <div className="mx-auto mb-6 flex max-w-xl flex-col items-center gap-1 text-center sm:mb-8 lg:mb-10">
         <h1
           id="business-info-heading"
-          className="
-            text-2xl font-black leading-tight
-            text-(--color-text)
-            sm:text-3xl
-            lg:text-4xl
-          "
+          className="text-2xl font-black leading-tight text-(--color-text) sm:text-3xl lg:text-4xl"
         >
           Tell us about your Business
         </h1>

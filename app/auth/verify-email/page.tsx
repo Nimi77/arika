@@ -15,7 +15,7 @@ function VerifyEmailContent() {
   const token = searchParams.get("token");
 
   const [isResending, setIsResending] = useState(true);
-  const [cooldown, setCooldown] = useState(10);
+  const [cooldown, setCooldown] = useState(20);
 
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
