@@ -2,10 +2,13 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import PasswordInput from "../components/PasswordInput";
-import Link from "next/link";
-import { apiFetch } from "@/lib/api";
 import { CircleCheck, CircleX } from "lucide-react";
+import { motion } from "motion/react";
+import Link from "next/link";
+import Image from "next/image";
+import { apiFetch } from "@/lib/api";
+import logo from "@/public/logo.svg";
+import PasswordInput from "../components/PasswordInput";
 
 const REQUIREMENTS = [
   {
@@ -32,7 +35,9 @@ function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  const [step, setStep] = useState<ResetPasswordStep>(token ? "form" : "expired");
+  const [step, setStep] = useState<ResetPasswordStep>(
+    token ? "form" : "expired",
+  );
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -65,6 +70,9 @@ function ResetPasswordContent() {
 
     return Object.keys(next).length === 0;
   }
+  
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -79,13 +87,14 @@ function ResetPasswordContent() {
 
     setIsSubmitting(true);
     try {
-      await apiFetch(
-        `/auth/reset-password?token=${encodeURIComponent(token)}`,
-        {
-          method: "POST",
-          body: JSON.stringify({ password }),
-        },
-      );
+       await Promise.all([
+         apiFetch(`/auth/reset-password?token=${encodeURIComponent(token)}`, {
+           method: "POST",
+           body: JSON.stringify({ password }),
+         }),
+         delay(1500),
+       ]);
+      
       setStep("success");
     } catch (error) {
       const message =
@@ -116,7 +125,12 @@ function ResetPasswordContent() {
    */
   if (step === "success") {
     return (
-      <div className="reset-password-page w-full">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="reset-password-page w-full"
+      >
         <div
           className="flex flex-col items-center gap-4 text-center"
           aria-live="polite"
@@ -149,7 +163,7 @@ function ResetPasswordContent() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -205,6 +219,21 @@ function ResetPasswordContent() {
    */
   return (
     <div className="reset-password-page w-full">
+      <Link
+        href="/"
+        aria-label="Arika home"
+        className="mb-4 flex justify-center"
+      >
+        <Image
+          src={logo}
+          alt=""
+          width={70}
+          height={70}
+          className="h-12 w-auto"
+          priority
+        />
+      </Link>
+
       <div className="heading-text mb-6 text-center">
         <h1 className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
           Create new password
@@ -290,10 +319,10 @@ function ResetPasswordContent() {
           </button>
 
           <p className="text-center text-sm text-(--color-text-subtle)">
-            We'll email you a secure recovery link. Back to{" "}
+            Choose a new password for your Arika account. Back to{" "}
             <Link
               href="/auth/login"
-              className="text-(--color-action-primary) font-semibold hover:underline"
+              className="text-(--color-action-primary) font-semibold underline hover:no-underline"
             >
               Sign In
             </Link>

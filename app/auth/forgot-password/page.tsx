@@ -57,42 +57,45 @@ export default function ForgotPasswordPage() {
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
+ async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+   e.preventDefault();
+   setError("");
 
-    if (!isValidEmail) {
-      setError("Please enter a valid email address.");
-      return;
-    }
+   if (!isValidEmail) {
+     setError("Please enter a valid email address.");
+     return;
+   }
 
-    setIsSubmitting(true);
+   setIsSubmitting(true);
 
-    try {
-      await Promise.all([
-        apiFetch("/auth/forgot-password", {
-          method: "POST",
-          body: JSON.stringify({ email: email.trim() }),
-        }),
-        delay(1500),
-      ]);
+   try {
+     await Promise.all([
+       apiFetch("/auth/forgot-password", {
+         method: "POST",
+         body: JSON.stringify({
+           email: email.trim(),
+         }),
+       }),
+       delay(1500),
+     ]);
 
-      setStep("check-email");
-      startResendCooldown();
-    } catch (err: any) {
-      await delay(1500);
+     // Only reached if the backend confirms the request was successful
+     setStep("check-email");
+     startResendCooldown();
+   } catch (err: any) {
+     await delay(1500);
 
-      if (err?.status === 404) {
-        setError(
-          "We couldn't find an account associated with this email address.",
-        );
-      } else {
-        setError("We couldn't send the reset link. Please try again.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+     if (err?.status === 404) {
+       setError(
+         "We couldn't find an account associated with this email address.",
+       );
+     } else {
+       setError("We couldn't send the reset link. Please try again.");
+     }
+   } finally {
+     setIsSubmitting(false);
+   }
+ }
 
   async function handleResend() {
     if (isResendCooldown || isSubmitting) return;

@@ -4,19 +4,19 @@ import { AppleIcon, GoogleIcon } from "@/app/svg-icons";
 import { useState } from "react";
 
 export default function SocialAuthButtons() {
- const [authError, setAuthError] = useState<"google" | "apple" | null>(null);
+  const [authError, setAuthError] = useState<"google" | "apple" | null>(null);
 
- function handleGoogleClick() {
-   setAuthError(null);
+  function handleGoogleClick() {
+    setAuthError(null);
 
-   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
- }
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google/callback`;
+  }
 
- function handleAppleClick() {
-   setAuthError(null);
+  function handleAppleClick() {
+    setAuthError(null);
 
-   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/apple`;
- }
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/apple`;
+  }
 
   return (
     <div className="Oauth-buttons w-full">

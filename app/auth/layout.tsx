@@ -43,9 +43,9 @@ export default function AuthLayout({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
-      {/* Logo */}
       {shouldShowLogo && (
         <div className="mb-6 flex flex-col items-center gap-2">
+          {/* Logo */}
           <Link href="/" aria-label="Arika home" className="mb-4">
             <Image
               src={logo}
