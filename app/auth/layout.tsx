@@ -3,9 +3,9 @@
 import type { ReactNode } from "react";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import logo from "@/public/logo.svg";
-import Link from "next/link";
 
 type AuthLayoutProps = {
   children: ReactNode;
@@ -23,29 +23,16 @@ export default function AuthLayout({
   const isResetPasswordPage = pathname.startsWith("/auth/reset-password");
   const isForgotPasswordPage = pathname.startsWith("/auth/forgot-password");
 
-  /*
-   * The verify-email page should only show the logo
-   * when the user is on the default verification state.
-   *
-   * When a token exists, the user is coming from the
-   * verification link, so the logo is hidden.
-   */
-  const hasVerificationToken =
-    isVerifyEmailPage &&
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).has("token");
-
   const shouldShowLogo =
     !hideLogo &&
+    !isVerifyEmailPage &&
     !isResetPasswordPage &&
-    !isForgotPasswordPage &&
-    (!isVerifyEmailPage || !hasVerificationToken);
+    !isForgotPasswordPage;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       {shouldShowLogo && (
         <div className="mb-6 flex flex-col items-center gap-2">
-          {/* Logo */}
           <Link href="/" aria-label="Arika home" className="mb-4">
             <Image
               src={logo}
@@ -57,7 +44,7 @@ export default function AuthLayout({
             />
           </Link>
 
-          {!isVerifyEmailPage && !isResetPasswordPage && (
+          {!isResetPasswordPage && (
             <div className="heading-text text-center">
               <h1 className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
                 {isRegisterPage
@@ -75,7 +62,6 @@ export default function AuthLayout({
         </div>
       )}
 
-      {/* Content */}
       <div className="auth-body w-full max-w-lg">{children}</div>
     </div>
   );

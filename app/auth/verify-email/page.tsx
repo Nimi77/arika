@@ -1,31 +1,34 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CircleCheck } from "lucide-react";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { AlertTriangle, CircleCheck, MailCheck } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import { apiFetch } from "@/lib/api";
+import ArikaLogo from "../components/ArikaLogo";
 
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const shouldReduceMotion = useReducedMotion();
 
   const email = searchParams.get("email") || "";
   const token = searchParams.get("token");
 
-  const [isResending, setIsResending] = useState(true);
+  const [isInitialCooldown, setIsInitialCooldown] = useState(true);
   const [cooldown, setCooldown] = useState(20);
-
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [isResendSuccessful, setIsResendSuccessful] = useState(false);
+  const [isResendFormOpen, setIsResendFormOpen] = useState(false);
+  const [resendEmail, setResendEmail] = useState(email);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
-
   const [isVerified, setIsVerified] = useState(false);
   const [isAlreadyVerified, setIsAlreadyVerified] = useState(false);
 
   /*
-   * Redirect the user to login after
-   * successful or already-completed verification.
+   * Redirect to login after verification.
    */
   useEffect(() => {
     if (!isVerified && !isAlreadyVerified) return;
@@ -38,8 +41,7 @@ function VerifyEmailContent() {
   }, [isVerified, isAlreadyVerified, router]);
 
   /*
-   * Verify the email when the user clicks the
-   * verification link in their email.
+   * Verify the token from the email link.
    */
   useEffect(() => {
     if (!token) return;
@@ -49,6 +51,7 @@ function VerifyEmailContent() {
     async function verify() {
       setIsVerifying(true);
       setVerifyError(null);
+      setIsVerified(false);
       setIsAlreadyVerified(false);
 
       try {
@@ -61,6 +64,9 @@ function VerifyEmailContent() {
 
         setIsVerified(true);
       } catch (err: any) {
+        /*
+         * Check if the account was already verified.
+         */
         const alreadyVerified =
           err?.body?.data?.emailVerified === true ||
           /already verified/i.test(err?.body?.message || "") ||
@@ -70,6 +76,9 @@ function VerifyEmailContent() {
           setIsAlreadyVerified(true);
           setVerifyError(null);
         } else {
+          setIsInitialCooldown(false);
+          setCooldown(0);
+
           setVerifyError(
             "This verification link is invalid or has expired. Please request a new one.",
           );
@@ -83,16 +92,13 @@ function VerifyEmailContent() {
   }, [token]);
 
   /*
-   * Initial resend cooldown.
-   *
-   * The user cannot resend immediately after
-   * arriving on the verification page.
+   * Start the initial resend cooldown.
    */
   useEffect(() => {
-    if (token) return;
+    if (token || isResendSuccessful) return;
 
     if (cooldown <= 0) {
-      setIsResending(false);
+      setIsInitialCooldown(false);
       return;
     }
 
@@ -100,7 +106,7 @@ function VerifyEmailContent() {
       setCooldown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          setIsResending(false);
+          setIsInitialCooldown(false);
           return 0;
         }
 
@@ -109,16 +115,19 @@ function VerifyEmailContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [cooldown, token]);
+  }, [cooldown, token, isResendSuccessful]);
 
   /*
-   * Resend verification email.
+   * Send a new verification email.
    */
   async function handleResend() {
-    if (isResending || !email) return;
+    const emailToSend = resendEmail.trim();
 
-    setIsResending(true);
+    if (isResendLoading || !emailToSend) return;
+
+    setIsResendLoading(true);
     setVerifyError(null);
+    setIsResendSuccessful(false);
 
     const minimumVerificationTime = new Promise((resolve) => {
       setTimeout(resolve, 2500);
@@ -126,17 +135,22 @@ function VerifyEmailContent() {
 
     try {
       await Promise.all([
-        apiFetch("/auth/resend-verification", { method: "POST" }),
+        apiFetch("/auth/resend-verification", {
+          method: "POST",
+          body: JSON.stringify({
+            email: emailToSend,
+          }),
+        }),
         minimumVerificationTime,
       ]);
 
-      // Start a new cooldown after successfully resending.
-      setCooldown(50);
+      setResendEmail(emailToSend);
+      setIsResendSuccessful(true);
+      setIsResendFormOpen(false);
     } catch (err: any) {
       await minimumVerificationTime;
 
-      setIsResending(false);
-      setCooldown(0);
+      setIsResendLoading(false);
 
       if (err?.status === 404) {
         setVerifyError(
@@ -155,13 +169,20 @@ function VerifyEmailContent() {
    */
   if (isVerified) {
     return (
-      <div
-        className="verify-email-content -mt-4 flex w-full flex-col items-center justify-center text-center"
+      <motion.div
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.5,
+          ease: "easeOut",
+        }}
+        className="verify-email-content flex w-full flex-col items-center justify-center text-center"
         aria-live="polite"
+        aria-atomic="true"
       >
         <div
           aria-hidden="true"
-          className="mt-4 flex items-center justify-center rounded-full"
+          className="flex h-24 w-24 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/50"
         >
           <CircleCheck
             size={70}
@@ -171,7 +192,7 @@ function VerifyEmailContent() {
         </div>
 
         <div className="mt-5 flex flex-col gap-2">
-          <h1 className="text-2xl font-bold tracking-[-0.015rem] text-(--color-text-primary)">
+          <h1 className="text-xl font-bold tracking-[-0.015rem] text-(--color-text-primary)">
             Email Successfully Verified
           </h1>
 
@@ -184,40 +205,121 @@ function VerifyEmailContent() {
         <p className="mt-12 text-sm leading-5 text-(--color-text-subtle)">
           You’ll be redirected to the login page shortly...
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   /*
-   * User clicked the verification link again
-   * after their email was already verified.
+   * User opened an already verified link.
    */
   if (isAlreadyVerified) {
     return (
-      <div
-        className="verify-email-content flex w-full flex-col gap-4 items-center justify-center text-center"
+      <motion.div
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.5,
+          ease: "easeOut",
+        }}
+        className="verify-email-content flex w-full flex-col items-center justify-center text-center"
         aria-live="polite"
+        aria-atomic="true"
       >
-        <p className="text-sm leading-6 text-(--color-text-subtle) sm:text-base">
-          This email address has already been verified. Your Arika account is
-          active and ready to use.
-        </p>
-        <p className="mt-10 text-sm leading-5 text-(--color-text-subtle)">
+        <div
+          aria-hidden="true"
+          className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/50"
+        >
+          <MailCheck
+            size={48}
+            strokeWidth={1.8}
+            className="text-(--color-action-primary)"
+          />
+        </div>
+
+        <div className="mt-5 flex flex-col gap-2">
+          <h1 className="text-xl font-bold tracking-[-0.015rem] text-(--color-text-primary)">
+            Email Already Verified
+          </h1>
+
+          <p className="text-sm leading-6 text-(--color-text-subtle) sm:text-base">
+            This email address has already been verified. Your Arika account is
+            active and ready to use.
+          </p>
+        </div>
+
+        <p className="mt-8 text-sm leading-5 text-(--color-text-subtle)">
           You’ll be redirected to the login page shortly.
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   /*
-   * User clicked the verification link and
-   * the token is currently being verified.
+   * New verification email was sent.
+   */
+  if (isResendSuccessful) {
+    return (
+      <motion.div
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.5,
+          ease: "easeOut",
+        }}
+        className="verify-email-content flex w-full flex-col items-center justify-center text-center"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <div
+          aria-hidden="true"
+          className="flex h-24 w-24 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/50"
+        >
+          <CircleCheck
+            size={70}
+            strokeWidth={1.8}
+            className="text-(--color-action-primary)"
+          />
+        </div>
+
+        <div className="mt-5 flex w-full flex-col gap-2">
+          <h1 className="text-2xl font-bold tracking-[-0.015rem] text-(--color-text-primary) sm:text-3xl">
+            Check your email
+          </h1>
+
+          <p className="text-sm leading-6 text-(--color-text-subtle) sm:text-base">
+            We sent a new verification link to{" "}
+            <span className="font-medium text-(--color-text-primary)">
+              {resendEmail}
+            </span>
+            . Click the link in your email to activate your account.
+          </p>
+        </div>
+
+        <p
+          className="mt-8 text-center text-sm leading-6 text-(--color-text-subtle)"
+          role="status"
+        >
+          Please check your inbox and use the latest verification link.
+        </p>
+      </motion.div>
+    );
+  }
+
+  /*
+   * Verification link is being checked or has expired.
    */
   if (token) {
     return (
-      <div
-        className="verify-email-content flex flex-col items-center justify-center gap-4"
+      <motion.div
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.5,
+          ease: "easeOut",
+        }}
+        className="verify-email-content flex w-full flex-col items-center justify-center"
         aria-live="polite"
+        aria-atomic="true"
       >
         {isVerifying && (
           <p className="text-sm text-(--color-text-subtle)">
@@ -225,45 +327,137 @@ function VerifyEmailContent() {
           </p>
         )}
 
-        {!isVerifying && verifyError && (
-          <>
+        {!isVerifying && verifyError && !isResendFormOpen && (
+          <div className="flex w-full flex-col items-center">
             <div
-              role="alert"
-              className="flex w-full flex-col items-center justify-center gap-2"
+              aria-hidden="true"
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-[#b45309]/15 dark:bg-[#d97706]/20"
             >
-              <p className="text-center text-sm leading-6 text-(--color-text-error) sm:text-base">
-                {verifyError}
-              </p>
+              <AlertTriangle
+                size={42}
+                strokeWidth={1.8}
+                className="text-(--color-warning)"
+              />
+            </div>
 
-              <p className="text-center text-sm leading-6 text-(--color-text-secondary) sm:text-base">
-                Please check that you are using the correct verification link
-                from your email. If the link has expired, you can return to
-                registration and request a new verification email.
+            <div className="mt-6 w-full">
+              <div
+                className="rounded-2xl border border-[#b45309]/20 bg-[#b45309]/5 p-4 dark:border-[#d97706]/20 dark:bg-[#d97706]/10"
+                role="alert"
+              >
+                <p className="text-center text-sm leading-6 text-[#92400e] dark:text-[#fbbf24]">
+                  {verifyError}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setVerifyError(null);
+                  setResendEmail(email);
+                  setIsResendFormOpen(true);
+                }}
+                className="mt-4 w-full rounded-full bg-(--color-action-primary) px-6 py-3.5 font-semibold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:bg-(--color-action-primary-hover) hover:shadow-[0_8px_20px_rgba(99,91,255,0.3)] active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary)"
+              >
+                Resend verification link
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!isVerifying && isResendFormOpen && (
+          <div className="w-full">
+            <ArikaLogo />
+            <div className="flex flex-col gap-1 text-center mb-6">
+              <h1 className="text-3xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
+                Resend Verification Link
+              </h1>
+              <p className="text-sm text-(--color-text-subtle)">
+                Enter the email address you used to create your Arika account.
               </p>
             </div>
 
-            <Link
-              href="/auth/register/email"
-              className="mt-6 flex w-full items-center justify-center rounded-full bg-(--color-action-primary) px-6 py-3.5 text-center text-sm font-semibold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:bg-(--color-action-primary-hover) hover:shadow-[0_8px_20px_rgba(99,91,255,0.3)] active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary)"
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleResend();
+              }}
+              aria-labelledby="resend-verification-heading"
+              aria-busy={isResendLoading}
+              className="flex flex-col"
             >
-              Back to registration
-            </Link>
-          </>
+              <div className="mb-6">
+                <label
+                  htmlFor="resend-email"
+                  className="mb-2 block text-sm font-medium text-(--color-text-primary)"
+                >
+                  Email Address
+                </label>
+
+                <input
+                  id="resend-email"
+                  type="email"
+                  value={resendEmail}
+                  onChange={(event) => {
+                    setResendEmail(event.target.value);
+                    setVerifyError(null);
+                  }}
+                  autoComplete="email"
+                  placeholder="Enter your email address"
+                  disabled={isResendLoading}
+                  aria-invalid={!!verifyError}
+                  aria-describedby={
+                    verifyError ? "resend-email-error" : undefined
+                  }
+                  className="w-full rounded-full border border-transparent px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
+                />
+              </div>
+              {verifyError && (
+                <p
+                  id="resend-email-error"
+                  className="mb-2 text-sm text-red-600 dark:text-(--color-text-error)"
+                  role="alert"
+                >
+                  {verifyError}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={isResendLoading || !resendEmail.trim()}
+                aria-busy={isResendLoading}
+                className={`w-full rounded-full px-6 py-3.5 font-semibold transition-all duration-250 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary) ${
+                  isResendLoading || !resendEmail.trim()
+                    ? "cursor-not-allowed bg-(--color-bg-surface) text-(--color-text-subtle) opacity-60"
+                    : "cursor-pointer bg-(--color-action-primary) text-white hover:bg-(--color-action-primary-hover)"
+                }`}
+              >
+                {isResendLoading
+                  ? "Sending verification link..."
+                  : "Send verification link"}
+              </button>
+            </form>
+          </div>
         )}
-      </div>
+      </motion.div>
     );
   }
 
   /*
-   * Default state:
-   * User has registered but has not clicked
-   * the verification link yet.
+   * Default state after registration.
    */
   return (
-    <div
-      className="verify-email-content -mt-4 flex flex-col items-center justify-center"
+    <motion.div
+      initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{
+        duration: shouldReduceMotion ? 0 : 0.6,
+        ease: "easeOut",
+      }}
+      className="verify-email-content flex w-full flex-col items-center justify-center"
       aria-live="polite"
+      aria-atomic="true"
     >
+      <ArikaLogo />
       <div className="email-content-text">
         <h1 className="text-center text-2xl font-bold tracking-[-0.015rem] text-(--color-text-primary) sm:text-3xl">
           Verify Your Email
@@ -281,6 +475,7 @@ function VerifyEmailContent() {
       <div className="mt-8 flex w-full flex-col items-center gap-2">
         {verifyError && (
           <p
+            id="resend-error"
             role="alert"
             className="w-full text-center text-sm text-red-600 dark:text-(--color-text-error)"
           >
@@ -291,17 +486,21 @@ function VerifyEmailContent() {
         <button
           type="button"
           onClick={handleResend}
-          disabled={isResending || !email}
-          aria-disabled={isResending || !email}
-          className={`w-full rounded-full px-6 py-3.5 font-semibold transition-all duration-250 ${
-            isResending || !email
+          disabled={isInitialCooldown || isResendLoading || !email}
+          aria-disabled={isInitialCooldown || isResendLoading || !email}
+          aria-busy={isResendLoading}
+          aria-describedby={verifyError ? "resend-error" : undefined}
+          className={`w-full rounded-full px-6 py-3.5 font-semibold transition-all duration-250 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary) ${
+            isInitialCooldown || isResendLoading || !email
               ? "cursor-not-allowed bg-(--color-bg-surface) text-(--color-text-subtle) opacity-60"
               : "cursor-pointer bg-(--color-action-primary) text-white hover:bg-(--color-action-primary-hover)"
           }`}
         >
-          {isResending
-            ? `Resend available in ${cooldown}s`
-            : "Resend verification link"}
+          {isResendLoading
+            ? "Sending verification link..."
+            : isInitialCooldown
+              ? `Resend available in ${cooldown}s`
+              : "Resend verification link"}
         </button>
 
         <p className="text-center text-sm text-(--color-text-subtle)">
@@ -314,7 +513,7 @@ function VerifyEmailContent() {
           </Link>
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

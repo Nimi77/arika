@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CircleCheck, CircleX } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
 import { apiFetch } from "@/lib/api";
@@ -34,7 +34,10 @@ type ResetPasswordStep = "form" | "success" | "expired";
 function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const shouldReduceMotion = useReducedMotion();
+
   const token = searchParams.get("token");
+
   const [step, setStep] = useState<ResetPasswordStep>(
     token ? "form" : "expired",
   );
@@ -44,7 +47,17 @@ function ResetPasswordContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
   type PasswordField = "password" | "confirmPassword";
+
+  useEffect(() => {
+    if (step === "form") return;
+
+    requestAnimationFrame(() => {
+      headingRef.current?.focus();
+    });
+  }, [step]);
 
   function validate(field?: PasswordField) {
     const next: Record<string, string> = {};
@@ -70,37 +83,42 @@ function ResetPasswordContent() {
 
     return Object.keys(next).length === 0;
   }
-  
-    const delay = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
+
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setErrors({});
 
     if (!token) {
-      setErrors({ form: "This reset link is invalid or has expired." });
+      setErrors({
+        form: "This reset link is invalid or has expired.",
+      });
       return;
     }
 
     if (!validate()) return;
 
     setIsSubmitting(true);
+
     try {
-       await Promise.all([
-         apiFetch(`/auth/reset-password?token=${encodeURIComponent(token)}`, {
-           method: "POST",
-           body: JSON.stringify({ password }),
-         }),
-         delay(1500),
-       ]);
-      
+      await Promise.all([
+        apiFetch(`/auth/reset-password?token=${encodeURIComponent(token)}`, {
+          method: "POST",
+          body: JSON.stringify({ password }),
+        }),
+        delay(1500),
+      ]);
+
       setStep("success");
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
           : "We couldn't reset your password. Please try again.";
+
       const lowerMessage = message.toLowerCase();
 
       if (
@@ -126,41 +144,53 @@ function ResetPasswordContent() {
   if (step === "success") {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={
+          shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.9 }
+        }
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
         className="reset-password-page w-full"
       >
         <div
           className="flex flex-col items-center gap-4 text-center"
-          aria-live="polite"
+          role="status"
+          aria-labelledby="password-reset-success-title"
         >
           {/* Checked logo */}
           <div
             aria-hidden="true"
-            className="flex items-center justify-center rounded-full"
+            className="flex h-24 w-24 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/50"
           >
-            <CircleCheck size={70} className="text-(--color-action-primary)" />
+            <CircleCheck
+              size={64}
+              strokeWidth={1.8}
+              className="text-(--color-action-primary)"
+            />
           </div>
 
-          <div className="password-reset">
-            <h2 className="text-lg font-extrabold text-(--color-text-primary)">
+          <div className="password-reset flex flex-col gap-2">
+            <h1
+              ref={headingRef}
+              id="password-reset-success-title"
+              tabIndex={-1}
+              className="text-xl font-extrabold text-(--color-text-primary) focus-visible:outline-none sm:text-2xl"
+            >
               Password updated
-            </h2>
-            <p className="mt-2 text-sm leading-5 text-(--color-text-subtle)">
+            </h1>
+
+            <p className="text-sm leading-5 text-(--color-text-subtle)">
               Your password has been changed successfully. You can now sign in
               to your Arika account with your new credentials.
             </p>
           </div>
 
           <div className="mt-2 w-full">
-            <button
-              type="button"
-              onClick={() => router.push("/auth/login")}
-              className="w-full rounded-full bg-(--color-action-primary) text-white py-3 text-sm font-semibold transition-colors hover:bg-(--color-action-primary-hover)"
+            <Link
+              href="/auth/login"
+              className="block w-full rounded-full bg-(--color-action-primary) py-4 text-center text-sm font-semibold text-white transition-colors hover:bg-(--color-action-primary-hover)"
             >
-              Sign in to account
-            </button>
+              Sign in to your account
+            </Link>
           </div>
         </div>
       </motion.div>
@@ -172,45 +202,58 @@ function ResetPasswordContent() {
    */
   if (step === "expired") {
     return (
-      <div
-        className="password-expired flex flex-col items-center gap-4 text-center"
-        aria-live="polite"
+      <motion.div
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+        className="password-expired flex flex-col items-center text-center"
+        role="alert"
+        aria-labelledby="reset-link-expired-title"
       >
         {/* Cancel logo */}
         <div
           aria-hidden="true"
-          className="flex  items-center justify-center rounded-full"
+          className="flex h-24 w-24 items-center justify-center rounded-full bg-[#b45309]/15 dark:bg-[#d97706]/20"
         >
-          <CircleX size={66} className="text-(--color-warning)" />
+          <CircleX
+            size={66}
+            strokeWidth={1.8}
+            className="text-(--color-warning)"
+          />
         </div>
 
-        <div>
-          <h2 className="text-lg font-extrabold text-(--color-text-primary)">
+        <div className="mt-4 mb-8 flex flex-col gap-1.5">
+          <h1
+            ref={headingRef}
+            id="reset-link-expired-title"
+            tabIndex={-1}
+            className="text-xl font-extrabold text-(--color-text-primary) focus-visible:outline-none sm:text-2xl"
+          >
             Reset link expired
-          </h2>
-          <p className="mt-2 text-sm leading-5 text-(--color-text-subtle)">
+          </h1>
+
+          <p className="text-sm leading-5 text-(--color-text-subtle)">
             For your security, password reset links expire after 30 minutes.
             Please request a new link to proceed.
           </p>
         </div>
 
         <div className="flex w-full flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/auth/forgot-password")}
-            className="w-full rounded-full bg-(--color-warning) text-white py-3 text-sm font-bold transition-colors duration-300 ease-out hover:-translate-y-0.5 hover:bg-amber-900/85 dark:hover:bg-amber-500/70"
+          <Link
+            href="/auth/forgot-password"
+            className="block w-full rounded-full bg-(--color-warning) py-4 text-center text-sm font-bold text-white transition-colors duration-200 ease-out hover:-translate-y-0.5 hover:bg-amber-900/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-warning) dark:hover:bg-amber-500/70"
           >
             Request a New Reset Link
-          </button>
+          </Link>
 
           <Link
             href="/auth/login"
-            className="w-full rounded-full bg-(--color-bg-surface) text-(--color-text-secondary) py-3 text-sm font-bold shadow transition-colors ease-in-out duration-200 hover:bg-neutral-100/15"
+            className="block w-full rounded-full bg-(--color-bg-surface) py-4 text-center text-sm font-bold text-(--color-text-secondary) shadow transition-colors duration-200 ease-in-out hover:bg-neutral-100/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary)"
           >
             Back to Sign In
           </Link>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -222,7 +265,7 @@ function ResetPasswordContent() {
       <Link
         href="/"
         aria-label="Arika home"
-        className="mb-4 flex justify-center"
+        className="mb-4 flex justify-center rounded-sm"
       >
         <Image
           src={logo}
@@ -235,18 +278,27 @@ function ResetPasswordContent() {
       </Link>
 
       <div className="heading-text mb-6 text-center">
-        <h1 className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)">
+        <h1
+          id="reset-password-title"
+          className="text-2xl font-extrabold tracking-[-0.32px] text-(--color-text-primary)"
+        >
           Create new password
         </h1>
 
-        <p className="text-sm text-(--color-text-subtle)">
+        <p
+          id="reset-password-description"
+          className="text-sm text-(--color-text-subtle)"
+        >
           Your new password must meet our security standards.
         </p>
       </div>
+
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-4"
-        aria-label="Reset password form"
+        aria-labelledby="reset-password-title"
+        aria-describedby="reset-password-description"
+        aria-busy={isSubmitting}
       >
         <PasswordInput
           id="password"
@@ -286,47 +338,49 @@ function ResetPasswordContent() {
           aria-label="Password requirements"
           className="-mt-2 flex flex-col gap-1 text-xs text-(--color-text-secondary)"
         >
-          {REQUIREMENTS.map((requirement) => (
-            <li
-              key={requirement.label}
-              className={
-                requirement.test(password)
-                  ? "text-(--color-action-primary)"
-                  : ""
-              }
-            >
-              • {requirement.label}
-            </li>
-          ))}
+          {REQUIREMENTS.map((requirement) => {
+            const isMet = requirement.test(password);
+
+            return (
+              <li
+                key={requirement.label}
+                aria-label={`${requirement.label}: ${
+                  isMet ? "met" : "not met"
+                }`}
+                className={isMet ? "text-(--color-action-primary)" : ""}
+              >
+                • {requirement.label}
+              </li>
+            );
+          })}
         </ul>
 
         {errors.form && (
           <p
             role="alert"
+            aria-live="assertive"
             className="text-sm text-red-600 dark:text-(--color-text-error)"
           >
             {errors.form}
           </p>
         )}
 
-        <div className="flex flex-col justify-center items-center gap-2">
+        <div className="flex flex-col items-center justify-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full bg-(--color-action-primary) text-white py-3 text-sm font-semibold transition-colors hover:bg-(--color-action-primary-hover) disabled:cursor-not-allowed disabled:opacity-60"
+            aria-busy={isSubmitting}
+            className="w-full rounded-full bg-(--color-action-primary) py-4 text-sm font-semibold text-white transition-colors hover:bg-(--color-action-primary-hover) disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Resetting password..." : "Reset password"}
           </button>
 
-          <p className="text-center text-sm text-(--color-text-subtle)">
-            Choose a new password for your Arika account. Back to{" "}
-            <Link
-              href="/auth/login"
-              className="text-(--color-action-primary) font-semibold underline hover:no-underline"
-            >
-              Sign In
-            </Link>
-          </p>
+          <Link
+            href="/auth/login"
+            className="block w-full rounded-full bg-(--color-bg-surface) py-4 text-center text-sm font-bold text-(--color-text-secondary) shadow transition-colors duration-200 ease-in-out hover:bg-neutral-100/15"
+          >
+            Back to Sign In
+          </Link>
         </div>
       </form>
     </div>
@@ -337,7 +391,11 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center">
+        <div
+          className="flex min-h-screen items-center justify-center"
+          role="status"
+          aria-live="polite"
+        >
           <p className="text-sm text-neutral-500">Loading...</p>
         </div>
       }
