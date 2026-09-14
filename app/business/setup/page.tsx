@@ -67,32 +67,39 @@ export default function BusinessSetupPage() {
     );
 
     try {
-      const formData = new FormData();
-      formData.append("businessName", businessName);
-      formData.append("industry", businessCategory ?? "");
-      formData.append("phone", phoneNumber ?? "");
-      formData.append("description", description);
-      formData.append("businessHours", operatingHours);
-      formData.append("website", websiteUrl);
-      formData.append("paymentMethods", paymentMethods);
-      formData.append("returnsPolicy", returnsPolicy);
-      formData.append("instagram", instagramHandle);
-      formData.append("facebook", facebookHandle);
-      formData.append("instagramConnected", String(instagramConnected));
-      formData.append("whatsappConnected", String(whatsappConnected));
-      formData.append("faqs", JSON.stringify(finalFAQs));
+      const formattedWebsite = websiteUrl
+        ? /^https?:\/\//i.test(websiteUrl)
+          ? websiteUrl
+          : `https://${websiteUrl}`
+        : undefined;
 
-      if (logoFile) {
-        formData.append("logo", logoFile);
+      const payload: Record<string, any> = {
+        businessName,
+        industry: businessCategory ?? "",
+        description,
+      };
+
+      if (formattedWebsite) {
+        payload.website = formattedWebsite;
       }
 
       await Promise.all([
         apiFetch("/business/setup", {
           method: "POST",
-          body: formData,
+          body: JSON.stringify(payload),
         }),
         minimumSavingTime,
       ]);
+
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("logo", logoFile);
+        await apiFetch("/business/logo", {
+          method: "POST",
+          headers: {},
+          body: formData,
+        });
+      }
 
       setSubmitSuccess(true);
 
@@ -100,14 +107,21 @@ export default function BusinessSetupPage() {
         router.push("/dashboard");
       }, 2000);
     } catch (err: any) {
+      // console.log("business/setup error status:", err?.status);
+      // console.log(
+      //   "business/setup error body:",
+      //   JSON.stringify(err?.body, null, 2),
+      // );
       await minimumSavingTime;
+      // ...rest of your existing catch logic stays the same
+
+      const backendMessage = err?.body?.message?.message;
 
       if (err?.status === 400) {
         setSubmitError(
-          Array.isArray(err?.body?.message)
-            ? err.body.message.join(", ")
-            : err?.body?.message ||
-                "The business information provided is invalid.",
+          Array.isArray(backendMessage)
+            ? backendMessage.join(", ")
+            : backendMessage || "The business information provided is invalid.",
         );
       } else if (err?.status === 401) {
         setSubmitError("Your session has expired. Please log in again.");
@@ -117,8 +131,7 @@ export default function BusinessSetupPage() {
         );
       } else if (err?.status === 409) {
         setSubmitError(
-          err?.body?.message ||
-            "This business setup has already been completed.",
+          backendMessage || "This business setup has already been completed.",
         );
       } else if (err?.status >= 500) {
         setSubmitError(
@@ -128,9 +141,15 @@ export default function BusinessSetupPage() {
         setSubmitError(
           "Unable to connect to the server. Please check your internet connection.",
         );
+      } else if (err?.status === 409) {
+        // Business already exists — treat as success and continue
+        setSubmitSuccess(true);
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
       } else {
         setSubmitError(
-          err?.body?.message ||
+          backendMessage ||
             `Unable to save your business setup. Error: ${err.status}`,
         );
       }

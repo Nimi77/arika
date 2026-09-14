@@ -38,8 +38,13 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      storeAuthToken(data.data);
-      router.push("/business/setup");
+      storeAuthToken(data.data.accessToken);
+
+      if (data.data.requiresBusinessSetup) {
+        router.push("/business/setup");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err: any) {
       const backendMessage =
         typeof err?.body?.message?.message === "string"
