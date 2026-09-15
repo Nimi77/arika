@@ -213,20 +213,15 @@ export default function RegisterPage() {
             password: formData.password,
           }),
         }),
-
-        // Ensures "Creating account..." is visible briefly
-        // even when the API responds very quickly.
         minimumLoadingTime,
       ]);
 
-      storeAuthToken(data.data);
+      storeAuthToken(data.data.accessToken);
 
       router.push(
         `/auth/verify-email?email=${encodeURIComponent(formData.email.trim())}`,
       );
     } catch (err: any) {
-      // Wait for the minimum loading duration even if
-      // the API responds very quickly with an error.
       await minimumLoadingTime;
 
       if (err?.status === 409) {
@@ -281,7 +276,7 @@ export default function RegisterPage() {
           <FormBanner message={formError} />
         </div>
       )}
-      
+
       <form
         onSubmit={handleSubmit}
         noValidate
