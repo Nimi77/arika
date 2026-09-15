@@ -12,6 +12,8 @@ import { apiFetch } from "@/lib/api";
 export default function DashboardPage() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [instagramConnected, setInstagramConnected] = useState(true);
+  const [whatsappConnected, setWhatsappConnected] = useState(false);
 
   useEffect(() => {
     async function fetchBusiness() {
@@ -27,9 +29,13 @@ export default function DashboardPage() {
   }, []);
 
   function handleConnectWhatsApp() {
+    setWhatsappConnected(true);
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/integrations/whatsapp/connect`;
   }
-
+  function handleConnectInstagram() {
+    setInstagramConnected(true);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/integrations/instagram/connect`;
+  }
   return (
     <div>
       <h1 className="text-2xl lg:mt-auto mt-6 font-black text-(--color-text)">
@@ -70,16 +76,25 @@ export default function DashboardPage() {
       </h2>
       <div className="grid sm:grid-cols-2 gap-3 mb-8">
         <ChannelRow
-          icon={<div className="w-7 h-7"><InstagramIcon /></div>}
+          icon={
+            <div className="w-7 h-7">
+              <InstagramIcon />
+            </div>
+          }
           title="Instagram DMs"
           subtitle="@sarahs_couture"
-          connected
+          connected={instagramConnected}
+          onConnect={handleConnectInstagram}
         />
         <ChannelRow
-          icon={<div className="w-8 h-8"><WhatsAppIcon /></div>}
+          icon={
+            <div className="w-8 h-8">
+              <WhatsAppIcon />
+            </div>
+          }
           title="WhatsApp Business"
           subtitle="Connect via Meta"
-          connected={false}
+          connected={whatsappConnected}
           onConnect={handleConnectWhatsApp}
         />
       </div>
