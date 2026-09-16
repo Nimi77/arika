@@ -19,16 +19,15 @@ function OAuthSuccessContent() {
 
     storeAuthToken(accessToken);
 
-    router.push("/business/setup");
+    const requiresBusinessSetup =
+      searchParams.get("requiresBusinessSetup") === "true";
+
+    if (requiresBusinessSetup) {
+      router.push("/business/setup");
+    } else {
+      router.push("/dashboard");
+    }
   }, [searchParams, router]);
-  const requiresBusinessSetup =
-    searchParams.get("requiresBusinessSetup") === "true";
-  // ...
-  if (requiresBusinessSetup) {
-    router.push("/business/setup");
-  } else {
-    router.push("/dashboard");
-  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
