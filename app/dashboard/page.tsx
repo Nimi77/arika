@@ -45,8 +45,6 @@ export default function DashboardPage() {
         Here is what is happening across your channels today.
       </p>
 
-      {/* ...rest of the file stays exactly the same... */}
-
       {/* Stats */}
       <div className="flex sm:grid sm:grid-cols-3 gap-4 overflow-x-auto snap-x pb-2 mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
         <StatCard

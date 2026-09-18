@@ -321,7 +321,6 @@ export default function BusinessInfoStep({
             placeholder="e.g. No cash refunds, exchanges within 48 hours"
             value={returnsPolicy}
             onChange={setReturnsPolicy}
-            textOnly
           />
         </div>
 

@@ -27,19 +27,18 @@ export default function ChannelRow({
         </div>
       </div>
 
-      {connected ? (
-        <span className="shrink-0 rounded-full bg-green-500/15 text-green-400 text-xs font-semibold px-3 py-1.5">
-          Connected
-        </span>
-      ) : (
-        <button
-          type="button"
-          onClick={onConnect}
-          className="shrink-0 rounded-full bg-(--color-action-primary) text-(--color-text-on-primary) text-xs font-semibold px-4 py-2 hover:bg-(--color-action-primary-hover) transition-colors"
-        >
-          Connect via Meta
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={onConnect}
+        disabled={connected}
+        className={`shrink-0 rounded-full text-xs font-semibold px-4 py-2 transition-colors ${
+          connected
+            ? "bg-green-500/15 text-green-400 cursor-default"
+            : "bg-(--color-action-primary) text-(--color-text-on-primary) hover:bg-(--color-action-primary-hover)"
+        }`}
+      >
+        {connected ? "Connected" : "Connect via Meta"}
+      </button>
     </div>
   );
 }
