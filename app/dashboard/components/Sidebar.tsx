@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { NAV_ITEMS } from "./nav-items";
 import logo from "@/public/logo.svg";
+import { apiFetch } from "@/lib/api";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    try {
+      await apiFetch("/auth/logout", { method: "POST" });
+    } catch {}
+    localStorage.removeItem("accessToken");
+    router.push("/");
+  }
 
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-(--color-bg-surface) px-4 py-6">
@@ -51,6 +61,7 @@ export default function Sidebar() {
 
       <button
         type="button"
+        onClick={handleLogout}
         className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-(--color-inactive-icon) hover:bg-(--color-bg-surface-hover) transition-colors"
       >
         Log Out

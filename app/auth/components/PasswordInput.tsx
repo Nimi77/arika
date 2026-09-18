@@ -38,7 +38,7 @@ export default function PasswordInput({
           placeholder={placeholder}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="w-full rounded-full tracking-[0.2em] px-5 py-3"
+          className="w-full rounded-full border border-transparent tracking-[0.2em] px-5 py-3"
         />
         <button
           type="button"

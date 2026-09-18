@@ -43,7 +43,7 @@ export default function AuthInput({
         autoComplete={autoComplete}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
-        className={`rounded-full border px-5 py-3 transition-colors ${
+        className={`rounded-full border border-transparent px-5 py-3 transition-colors ${
           error ? "border-red-500" : ""
         }`}
       />
