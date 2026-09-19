@@ -21,7 +21,10 @@ async function refreshAccessToken(): Promise<string | null> {
 
     if (!res.ok) return null;
 
-    const json = (await res.json()) as { data?: { accessToken?: string } };
+    const json = (await res.json()) as {
+      data?: { accessToken?: string };
+    };
+
     const newAccessToken = json?.data?.accessToken;
 
     if (!newAccessToken) return null;
@@ -53,7 +56,14 @@ export async function apiFetch<T = unknown>(
     },
   });
 
-  if (res.status === 401 && !isRetry) {
+  // Public auth endpoints should not attempt token refresh.
+  const isPublicAuthEndpoint =
+    endpoint.startsWith("/auth/reset-password") ||
+    endpoint.startsWith("/auth/forgot-password") ||
+    endpoint.startsWith("/auth/verify-email") ||
+    endpoint.startsWith("/auth/resend-verification");
+
+  if (res.status === 401 && !isRetry && !isPublicAuthEndpoint) {
     const newToken = await refreshAccessToken();
 
     if (newToken) {
@@ -68,6 +78,7 @@ export async function apiFetch<T = unknown>(
     } | null;
 
     const error = new Error(`API error: ${res.status}`) as ApiError;
+
     error.status = res.status;
     error.statusText = res.statusText;
     error.body = errorBody;
@@ -76,6 +87,7 @@ export async function apiFetch<T = unknown>(
   }
 
   const text = await res.text();
+
   return text ? (JSON.parse(text) as T) : (null as T);
 }
 

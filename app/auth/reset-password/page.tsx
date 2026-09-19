@@ -9,6 +9,7 @@ import Image from "next/image";
 import { apiFetch } from "@/lib/api";
 import logo from "@/public/logo.svg";
 import PasswordInput from "../components/PasswordInput";
+import FormBanner from "../components/FormBanner";
 
 const REQUIREMENTS = [
   {
@@ -104,7 +105,7 @@ function ResetPasswordContent() {
 
     try {
       await Promise.all([
-        apiFetch(`/auth/reset-password?token=${encodeURIComponent(token)}`, {
+        apiFetch("/auth/reset-password", {
           method: "POST",
           body: JSON.stringify({
             token,
@@ -117,27 +118,21 @@ function ResetPasswordContent() {
       setStep("success");
     } catch (error: unknown) {
       const apiError = error as {
-        status?: number;
         body?: {
-          message?: {
-            message?: string[];
-          };
+          message?: string | { message?: string | string[] };
         };
       };
 
-      const backendMessages = apiError.body?.message?.message ?? [];
+      const responseMessage = apiError.body?.message;
 
-      const hasTokenError = backendMessages.some((message) => {
-        const lowerMessage = message.toLowerCase();
+      const message =
+        typeof responseMessage === "string"
+          ? responseMessage
+          : Array.isArray(responseMessage?.message)
+            ? responseMessage.message.join(" ")
+            : responseMessage?.message;
 
-        return (
-          lowerMessage.includes("token") ||
-          lowerMessage.includes("expired") ||
-          lowerMessage.includes("invalid")
-        );
-      });
-
-      if (hasTokenError) {
+      if (message?.toLowerCase().includes("expired")) {
         setStep("expired");
         return;
       }
@@ -215,9 +210,12 @@ function ResetPasswordContent() {
   if (step === "expired") {
     return (
       <motion.div
-        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.5,
+          ease: "easeOut",
+        }}
         className="password-expired flex flex-col items-center text-center"
         role="alert"
         aria-labelledby="reset-link-expired-title"
@@ -312,6 +310,13 @@ function ResetPasswordContent() {
         aria-describedby="reset-password-description"
         aria-busy={isSubmitting}
       >
+        {errors.form && (
+          <FormBanner
+            message={errors.form}
+            actionLabel=""
+            onAction={() => {}}
+          />
+        )}
         <PasswordInput
           id="password"
           label="New password"
@@ -366,16 +371,6 @@ function ResetPasswordContent() {
             );
           })}
         </ul>
-
-        {errors.form && (
-          <p
-            role="alert"
-            aria-live="assertive"
-            className="text-sm text-red-600 dark:text-(--color-text-error)"
-          >
-            {errors.form}
-          </p>
-        )}
 
         <div className="flex flex-col items-center justify-center gap-2">
           <button
