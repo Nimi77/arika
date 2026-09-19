@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { CircleCheck, CircleX } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
@@ -32,7 +32,6 @@ const REQUIREMENTS = [
 type ResetPasswordStep = "form" | "success" | "expired";
 
 function ResetPasswordContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
 
@@ -107,31 +106,44 @@ function ResetPasswordContent() {
       await Promise.all([
         apiFetch(`/auth/reset-password?token=${encodeURIComponent(token)}`, {
           method: "POST",
-          body: JSON.stringify({ password }),
+          body: JSON.stringify({
+            token,
+            newPassword: password,
+          }),
         }),
         delay(1500),
       ]);
 
       setStep("success");
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "We couldn't reset your password. Please try again.";
+    } catch (error: unknown) {
+      const apiError = error as {
+        status?: number;
+        body?: {
+          message?: {
+            message?: string[];
+          };
+        };
+      };
 
-      const lowerMessage = message.toLowerCase();
+      const backendMessages = apiError.body?.message?.message ?? [];
 
-      if (
-        lowerMessage.includes("expired") ||
-        lowerMessage.includes("reset token") ||
-        lowerMessage.includes("invalid token")
-      ) {
+      const hasTokenError = backendMessages.some((message) => {
+        const lowerMessage = message.toLowerCase();
+
+        return (
+          lowerMessage.includes("token") ||
+          lowerMessage.includes("expired") ||
+          lowerMessage.includes("invalid")
+        );
+      });
+
+      if (hasTokenError) {
         setStep("expired");
         return;
       }
 
       setErrors({
-        form: message,
+        form: "We couldn't reset your password. Please try again.",
       });
     } finally {
       setIsSubmitting(false);

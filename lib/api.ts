@@ -1,5 +1,14 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+export type ApiError = Error & {
+  status?: number;
+  statusText?: string;
+  body?: {
+    message?: string | { message?: string };
+    data?: Record<string, unknown>;
+  } | null;
+};
+
 async function refreshAccessToken(): Promise<string | null> {
   try {
     const res = await fetch(`${API_URL}/auth/refresh-token`, {
@@ -12,7 +21,7 @@ async function refreshAccessToken(): Promise<string | null> {
 
     if (!res.ok) return null;
 
-    const json = await res.json();
+    const json = (await res.json()) as { data?: { accessToken?: string } };
     const newAccessToken = json?.data?.accessToken;
 
     if (!newAccessToken) return null;
@@ -25,11 +34,11 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
-export async function apiFetch(
+export async function apiFetch<T = unknown>(
   endpoint: string,
   options: RequestInit = {},
   isRetry = false,
-): Promise<any> {
+): Promise<T> {
   const token = getAccessToken();
 
   const res = await fetch(`${API_URL}${endpoint}`, {
@@ -48,14 +57,17 @@ export async function apiFetch(
     const newToken = await refreshAccessToken();
 
     if (newToken) {
-      return apiFetch(endpoint, options, true);
+      return apiFetch<T>(endpoint, options, true);
     }
   }
 
   if (!res.ok) {
-    const errorBody = await res.json().catch(() => null);
+    const errorBody = (await res.json().catch(() => null)) as {
+      message?: string | { message?: string };
+      data?: Record<string, unknown>;
+    } | null;
 
-    const error: any = new Error(`API error: ${res.status}`);
+    const error = new Error(`API error: ${res.status}`) as ApiError;
     error.status = res.status;
     error.statusText = res.statusText;
     error.body = errorBody;
@@ -64,7 +76,7 @@ export async function apiFetch(
   }
 
   const text = await res.text();
-  return text ? JSON.parse(text) : null;
+  return text ? (JSON.parse(text) as T) : (null as T);
 }
 
 export function storeAuthToken(accessToken: string) {

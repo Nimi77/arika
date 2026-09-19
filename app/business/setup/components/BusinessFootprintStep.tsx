@@ -10,7 +10,6 @@ type FieldProps = {
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
-  large?: boolean;
 };
 
 function TextAreaField({
@@ -19,7 +18,6 @@ function TextAreaField({
   placeholder,
   value,
   onChange,
-  large,
 }: FieldProps) {
   return (
     <div className="flex w-full flex-col gap-1.5 text-left">
@@ -88,7 +86,6 @@ export default function BusinessFootprintStep({
   isSubmitting,
   onComplete,
 }: BusinessFootprintStepProps) {
-
   return (
     <section
       aria-labelledby="business-footprint-heading"
@@ -142,7 +139,6 @@ export default function BusinessFootprintStep({
             placeholder="e.g. We sell premium, locally sourced jewelry and accessories for women."
             value={description}
             onChange={setDescription}
-            large
           />
 
           {/* Operating hours */}

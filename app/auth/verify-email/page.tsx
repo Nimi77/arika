@@ -16,7 +16,6 @@ function VerifyEmailContent() {
   const email = searchParams.get("email") || "";
   const token = searchParams.get("token");
 
-  const [isInitialCooldown, setIsInitialCooldown] = useState(true);
   const [cooldown, setCooldown] = useState(20);
   const [isResendLoading, setIsResendLoading] = useState(false);
   const [isResendSuccessful, setIsResendSuccessful] = useState(false);
@@ -63,20 +62,23 @@ function VerifyEmailContent() {
         );
 
         setIsVerified(true);
-      } catch (err: any) {
+      } catch (err: unknown) {
         /*
          * Check if the account was already verified.
          */
+        const apiError = err as {
+          body?: { data?: { emailVerified?: boolean }; message?: string };
+          message?: string;
+        };
         const alreadyVerified =
-          err?.body?.data?.emailVerified === true ||
-          /already verified/i.test(err?.body?.message || "") ||
-          /already verified/i.test(err?.message || "");
+          apiError?.body?.data?.emailVerified === true ||
+          /already verified/i.test(apiError?.body?.message || "") ||
+          /already verified/i.test(apiError?.message || "");
 
         if (alreadyVerified) {
           setIsAlreadyVerified(true);
           setVerifyError(null);
         } else {
-          setIsInitialCooldown(false);
           setCooldown(0);
 
           setVerifyError(
@@ -98,7 +100,6 @@ function VerifyEmailContent() {
     if (token || isResendSuccessful) return;
 
     if (cooldown <= 0) {
-      setIsInitialCooldown(false);
       return;
     }
 
@@ -106,7 +107,6 @@ function VerifyEmailContent() {
       setCooldown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          setIsInitialCooldown(false);
           return 0;
         }
 
@@ -147,14 +147,15 @@ function VerifyEmailContent() {
       setResendEmail(emailToSend);
       setIsResendSuccessful(true);
       setIsResendFormOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       await minimumVerificationTime;
 
+      const apiError = err as { status?: number };
       setIsResendLoading(false);
 
-      if (err?.status === 404) {
+      if (apiError?.status === 404) {
         setVerifyError(
-          "We couldn't find an account associated with this email address.",
+          "We couldn&apos;t find an account associated with this email address.",
         );
       } else {
         setVerifyError(
@@ -283,7 +284,7 @@ function VerifyEmailContent() {
 
         <div className="mt-5 flex w-full flex-col gap-2">
           <h1 className="text-2xl font-bold tracking-[-0.015rem] text-(--color-text-primary) sm:text-3xl">
-            Check your email
+            Check Your Email
           </h1>
 
           <p className="text-sm leading-6 text-(--color-text-subtle) sm:text-base">
@@ -486,19 +487,19 @@ function VerifyEmailContent() {
         <button
           type="button"
           onClick={handleResend}
-          disabled={isInitialCooldown || isResendLoading || !email}
-          aria-disabled={isInitialCooldown || isResendLoading || !email}
+          disabled={cooldown > 0 || isResendLoading || !email}
+          aria-disabled={cooldown > 0 || isResendLoading || !email}
           aria-busy={isResendLoading}
           aria-describedby={verifyError ? "resend-error" : undefined}
           className={`w-full rounded-full px-6 py-3.5 font-semibold transition-all duration-250 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary) ${
-            isInitialCooldown || isResendLoading || !email
+            cooldown > 0 || isResendLoading || !email
               ? "cursor-not-allowed bg-(--color-bg-surface) text-(--color-text-subtle) opacity-60"
               : "cursor-pointer bg-(--color-action-primary) text-white hover:bg-(--color-action-primary-hover)"
           }`}
         >
           {isResendLoading
             ? "Sending verification link..."
-            : isInitialCooldown
+            : cooldown > 0
               ? `Resend available in ${cooldown}s`
               : "Resend verification link"}
         </button>

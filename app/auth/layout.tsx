@@ -40,6 +40,7 @@ export default function AuthLayout({
               width={70}
               height={70}
               className="h-12 w-auto"
+              loading="eager"
               priority
             />
           </Link>

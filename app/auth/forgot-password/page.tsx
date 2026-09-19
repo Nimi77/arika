@@ -79,15 +79,17 @@ export default function ForgotPasswordPage() {
       ]);
 
       setStep("check-email");
-    } catch (err: any) {
+    } catch (err: unknown) {
       await delay(1500);
 
-      if (err?.status === 404) {
+      const apiError = err as { status?: number };
+
+      if (apiError?.status === 404) {
         setError(
-          "We couldn't find an account associated with this email address.",
+          "We couldn&apos;t find an account associated with this email address.",
         );
       } else {
-        setError("We couldn't send the reset link. Please try again.");
+        setError("We couldn&apos;t send the reset link. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -169,7 +171,7 @@ export default function ForgotPasswordPage() {
               </button>
 
               <p className="text-center text-sm text-(--color-text-subtle)">
-                We'll email you a secure recovery link.
+                We&apos;ll email you a secure recovery link.
               </p>
             </div>
           </form>
@@ -207,11 +209,11 @@ export default function ForgotPasswordPage() {
                 tabIndex={-1}
                 className="text-center text-3xl font-extrabold tracking-[-0.32px] text-(--color-text-primary) focus-visible:outline-none"
               >
-                Check your email
+                Check Your Email
               </h1>
 
               <p className="max-w-md text-center text-sm text-(--color-text-subtle)">
-                We've sent a password reset link to{" "}
+                We&apos;ve sent a password reset link to{" "}
                 <span className="font-medium text-(--color-text-primary)">
                   {email}
                 </span>
@@ -243,7 +245,7 @@ export default function ForgotPasswordPage() {
               </button>
 
               <p className="text-center text-sm text-(--color-text-subtle)">
-                Didn't receive the email? Check your spam folder.
+                Didn&apos;t receive the email? Check your spam folder.
               </p>
             </div>
           </div>

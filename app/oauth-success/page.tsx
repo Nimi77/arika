@@ -1,40 +1,46 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { storeAuthToken } from "@/lib/api";
+import { apiFetch, storeAuthToken } from "@/lib/api";
 
 function OAuthSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+  const accessToken = searchParams.get("accessToken");
+  const hasMissingAccessToken = !accessToken;
 
   useEffect(() => {
-    const accessToken = searchParams.get("accessToken");
+    if (!accessToken) return;
 
-    if (!accessToken) {
-      setError("Missing authentication details. Please try signing in again.");
-      return;
+    async function completeOAuthLogin(token: string) {
+      try {
+        storeAuthToken(token);
+
+        const response = await apiFetch<{
+          data: {
+            setupCompleted: boolean;
+          };
+        }>("/business/me");
+
+        if (response.data.setupCompleted) {
+          router.replace("/dashboard");
+        } else {
+          router.replace("/business/setup");
+        }
+      } catch {
+        router.replace("/business/setup");
+      }
     }
 
-    storeAuthToken(accessToken);
-
-    const requiresBusinessSetup =
-      searchParams.get("requiresBusinessSetup") === "true";
-
-    if (requiresBusinessSetup) {
-      router.push("/business/setup");
-    } else {
-      router.push("/dashboard");
-    }
-  }, [searchParams, router]);
-
+    completeOAuthLogin(accessToken);
+  }, [accessToken, router]);
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-      {error ? (
+      {hasMissingAccessToken ? (
         <>
           <p className="text-sm text-red-600 mb-4 dark:text-(--color-text-error)">
-            {error}
+            Missing authentication details. Please try signing in again.
           </p>
           <button
             type="button"

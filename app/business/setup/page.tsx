@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import BusinessInfoStep from "./components/BusinessInfoStep";
 import BusinessFootprintStep from "./components/BusinessFootprintStep";
 import LinkPlatformsStep from "./components/LinkPlatformsStep";
-import CompleteStep, { FAQ } from "./components/CompleteStep";
+import CompleteStep from "./components/CompleteStep";
 import { apiFetch } from "@/lib/api";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -57,106 +57,129 @@ export default function BusinessSetupPage() {
     },
   };
 
-  async function submitBusinessSetup(finalFAQs: FAQ[]) {
-    setSubmitError(null);
-    setSubmitSuccess(false);
-    setIsSubmitting(true);
+ async function submitBusinessSetup() {
+   setSubmitError(null);
+   setSubmitSuccess(false);
+   setIsSubmitting(true);
 
-    const minimumSavingTime = new Promise((resolve) =>
-      setTimeout(resolve, 2000),
-    );
+   const minimumSavingTime = new Promise<void>((resolve) => {
+     setTimeout(resolve, 2000);
+   });
 
-    try {
-      const formattedWebsite = websiteUrl
-        ? /^https?:\/\//i.test(websiteUrl)
-          ? websiteUrl
-          : `https://${websiteUrl}`
-        : undefined;
+   try {
+     const formattedWebsite = websiteUrl
+       ? /^https?:\/\//i.test(websiteUrl)
+         ? websiteUrl
+         : `https://${websiteUrl}`
+       : undefined;
 
-      const payload: Record<string, any> = {
-        businessName,
-        industry: businessCategory ?? "",
-        description,
-      };
+     const payload: Record<string, string> = {
+       businessName,
+       industry: businessCategory ?? "",
+       description,
+     };
 
-      if (formattedWebsite) {
-        payload.website = formattedWebsite;
-      }
+     if (formattedWebsite) {
+       payload.website = formattedWebsite;
+     }
 
-      await Promise.all([
-        apiFetch("/business/setup", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        }),
-        minimumSavingTime,
-      ]);
+     await Promise.all([
+       apiFetch("/business/setup", {
+         method: "POST",
+         body: JSON.stringify(payload),
+       }),
+       minimumSavingTime,
+     ]);
 
-      if (logoFile) {
-        const formData = new FormData();
-        formData.append("logo", logoFile);
-        await apiFetch("/business/logo", {
-          method: "POST",
-          headers: {},
-          body: formData,
-        });
-      }
+     if (logoFile) {
+       const formData = new FormData();
+       formData.append("logo", logoFile);
 
-      setSubmitSuccess(true);
+       try {
+         await apiFetch("/business/logo", {
+           method: "POST",
+           body: formData,
+         });
+       } catch {
+         setSubmitError(
+           "Your business information was saved, but we couldn't upload your logo. You can try again later.",
+         );
+         setIsSubmitting(false);
+         return;
+       }
+     }
 
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
-    } catch (err: any) {
-      // console.log("business/setup error status:", err?.status);
-      // console.log(
-      //   "business/setup error body:",
-      //   JSON.stringify(err?.body, null, 2),
-      // );
-      await minimumSavingTime;
-      // ...rest of your existing catch logic stays the same
+     setSubmitSuccess(true);
 
-      const backendMessage = err?.body?.message?.message;
+     setTimeout(() => {
+       router.push("/dashboard");
+     }, 2000);
+   } catch (err: unknown) {
+     await minimumSavingTime;
 
-      if (err?.status === 400) {
-        setSubmitError(
-          Array.isArray(backendMessage)
-            ? backendMessage.join(", ")
-            : backendMessage || "The business information provided is invalid.",
-        );
-      } else if (err?.status === 401) {
-        setSubmitError("Your session has expired. Please log in again.");
-      } else if (err?.status === 403) {
-        setSubmitError(
-          "You are not authorized to complete this business setup.",
-        );
-      } else if (err?.status === 409) {
-        setSubmitError(
-          backendMessage || "This business setup has already been completed.",
-        );
-      } else if (err?.status >= 500) {
-        setSubmitError(
-          "The server encountered an error while saving your business information.",
-        );
-      } else if (!err?.status) {
-        setSubmitError(
-          "Unable to connect to the server. Please check your internet connection.",
-        );
-      } else if (err?.status === 409) {
-        // Business already exists — treat as success and continue
-        setSubmitSuccess(true);
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
-      } else {
-        setSubmitError(
-          backendMessage ||
-            `Unable to save your business setup. Error: ${err.status}`,
-        );
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+     const apiError = err as {
+       status?: number;
+       body?: {
+         message?: string | string[];
+       };
+     };
+
+     const status = apiError.status;
+
+     switch (status) {
+       case 400:
+         setSubmitError(
+           "Please check your business information and make sure all required fields are correctly filled.",
+         );
+         break;
+
+       case 401:
+         setSubmitError(
+           "Your session has expired. Please log in again to continue.",
+         );
+         break;
+
+       case 403:
+         setSubmitError(
+           "You are not authorized to complete this business setup.",
+         );
+         break;
+
+       case 409:
+         setSubmitError("Your business setup has already been completed.");
+         break;
+
+       case 404:
+         setSubmitError(
+           "We couldn't find the business setup service. Please try again later.",
+         );
+         break;
+
+       case 422:
+         setSubmitError(
+           "Some of the business information is invalid. Please review your details and try again.",
+         );
+         break;
+
+       default:
+         if (status && status >= 500) {
+           setSubmitError(
+             "Something went wrong on our server. Please try again in a moment.",
+           );
+         } else if (!status) {
+           setSubmitError(
+             "Unable to connect to the server. Please check your internet connection and try again.",
+           );
+         } else {
+           setSubmitError(
+             "Unable to save your business information. Please try again.",
+           );
+         }
+     }
+   } finally {
+     setIsSubmitting(false);
+   }
+ }
 
   return (
     <div className="business-setup-page flex w-full flex-col items-center py-10">

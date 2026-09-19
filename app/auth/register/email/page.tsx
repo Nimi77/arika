@@ -30,6 +30,8 @@ const REQUIREMENTS = [
 ];
 
 type Field = "fullName" | "email" | "password" | "confirmPassword";
+const NAME_REGEX = /^[a-zA-ZÀ-ÖØ-öø-ÿ ]+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -53,7 +55,7 @@ export default function RegisterPage() {
    */
   const isFormValid =
     formData.fullName.trim().length > 0 &&
-    /\S+@\S+\.\S+/.test(formData.email) &&
+    EMAIL_REGEX.test(formData.email.trim()) &&
     REQUIREMENTS.every((requirement) => requirement.test(formData.password)) &&
     formData.confirmPassword === formData.password &&
     formData.confirmPassword.length > 0;
@@ -63,39 +65,35 @@ export default function RegisterPage() {
    * It also removes that field's error as soon as the user starts typing.
    */
   function handleChange(field: Field, value: string) {
+    if (field === "fullName") {
+      value = value.replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ ]/g, "");
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
 
-    // Clear the field's validation error while typing.
     setErrors((prev) => {
       if (!prev[field]) return prev;
 
       const next = { ...prev };
       delete next[field];
-
       return next;
     });
 
-    // Clear email-related API banners when the email changes.
     if (field === "email") {
       setEmailExists(false);
       setEmailNotVerified(false);
       setFormError("");
     }
 
-    /*
-     * If the password changes, the previous confirm-password
-     * mismatch may no longer be relevant.
-     */
     if (field === "password") {
       setErrors((prev) => {
         if (!prev.confirmPassword) return prev;
 
         const next = { ...prev };
         delete next.confirmPassword;
-
         return next;
       });
     }
@@ -112,14 +110,16 @@ export default function RegisterPage() {
       case "fullName":
         if (!value.trim()) {
           message = "Full name is required";
+        } else if (!NAME_REGEX.test(value.trim())) {
+          message = "Full name can only contain letters and spaces";
         }
         break;
 
       case "email":
         if (!value.trim()) {
           message = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(value)) {
-          message = "Enter a valid email address";
+        } else if (!EMAIL_REGEX.test(value.trim())) {
+          message = "Enter a valid email address, e.g. sarah@example.com";
         }
         break;
 
@@ -159,12 +159,14 @@ export default function RegisterPage() {
 
     if (!formData.fullName.trim()) {
       next.fullName = "Full name is required";
+    } else if (!NAME_REGEX.test(formData.fullName.trim())) {
+      next.fullName = "Full name can only contain letters and spaces";
     }
 
     if (!formData.email.trim()) {
       next.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      next.email = "Enter a valid email address";
+    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
+      next.email = "Enter a valid email address, e.g. sarah@example.com";
     }
 
     if (
@@ -184,28 +186,32 @@ export default function RegisterPage() {
     return Object.keys(next).length === 0;
   }
 
+  type RegisterResponse = {
+    data: {
+      accessToken: string;
+    };
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // Clear previous API/account messages.
     setEmailExists(false);
     setEmailNotVerified(false);
     setFormError("");
 
-    // Run complete validation before submitting.
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
 
-    const minimumLoadingTime = new Promise((resolve) =>
-      setTimeout(resolve, 800),
-    );
+    const minimumLoadingTime = new Promise<void>((resolve) => {
+      setTimeout(resolve, 800);
+    });
 
     try {
       const [data] = await Promise.all([
-        apiFetch("/auth/register", {
+        apiFetch<RegisterResponse>("/auth/register", {
           method: "POST",
           body: JSON.stringify({
             fullName: formData.fullName.trim(),
@@ -221,11 +227,20 @@ export default function RegisterPage() {
       router.push(
         `/auth/verify-email?email=${encodeURIComponent(formData.email.trim())}`,
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       await minimumLoadingTime;
 
-      if (err?.status === 409) {
-        if (err?.body?.data?.emailVerified === false) {
+      const apiError = err as {
+        status?: number;
+        body?: {
+          data?: {
+            emailVerified?: boolean;
+          };
+        };
+      };
+
+      if (apiError.status === 409) {
+        if (apiError.body?.data?.emailVerified === false) {
           setEmailNotVerified(true);
           setFormError(
             "This email is already registered but hasn't been verified.",

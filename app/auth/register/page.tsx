@@ -88,7 +88,7 @@ export default function RegisterPage() {
           </span>
 
           <p className="text-sm font-normal leading-5 text-(--color-text-subtle)">
-            By continuing, you agree to Arika's{" "}
+            By continuing, you agree to Arika&apos;s{" "}
             <a
               href="/terms"
               className="text-(--color-text-action) hover:underline"

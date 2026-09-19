@@ -127,7 +127,7 @@ export default function BusinessInfoStep({
         </h1>
 
         <p className="max-w-md text-sm leading-6 text-(--color-text-subtle) sm:text-base">
-          Let's set up your profile so Arika knows exactly who it is
+          Let&apos;s set up your profile so Arika knows exactly who it is
           representing.
         </p>
       </div>

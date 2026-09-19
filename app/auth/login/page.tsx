@@ -7,6 +7,7 @@ import { useState } from "react";
 import AuthInput from "../components/AuthInput";
 import { useRouter } from "next/navigation";
 import { apiFetch, storeAuthToken } from "@/lib/api";
+import FormBanner from "../components/FormBanner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,9 +23,11 @@ export default function LoginPage() {
       setPassword(value);
     }
 
-    if (errors.email || errors.password) {
-      setErrors({});
-    }
+    setErrors({});
+  };
+
+  const handleVerifyEmail = () => {
+    router.push(`/auth/verify-email?email=${encodeURIComponent(email.trim())}`);
   };
 
   async function handleLogin(e: React.FormEvent) {
@@ -33,7 +36,12 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const data = await apiFetch("/auth/login", {
+      const data = await apiFetch<{
+        data: {
+          accessToken: string;
+          requiresBusinessSetup?: boolean;
+        };
+      }>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
@@ -45,17 +53,21 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const apiError = err as {
+        status?: number;
+        body?: { message?: { message?: string } };
+      };
       const backendMessage =
-        typeof err?.body?.message?.message === "string"
-          ? err.body.message.message
+        typeof apiError?.body?.message?.message === "string"
+          ? apiError.body.message.message
           : "";
 
       if (backendMessage.toLowerCase().includes("verify")) {
         setErrors({
-          password: "Please verify your email before logging in",
+          form: "Your email has not been verified. Please verify your email before logging in.",
         });
-      } else if (err?.status === 401) {
+      } else if (apiError?.status === 401) {
         setErrors({ password: "Incorrect email or password" });
       } else {
         setErrors({ password: "Something went wrong. Please try again." });
@@ -76,11 +88,20 @@ export default function LoginPage() {
         </span>
         <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />
       </div>
+
       <form
         onSubmit={handleLogin}
         aria-label="Log in form"
         className="flex flex-col gap-4"
       >
+        {errors.form && (
+          <FormBanner
+            message={errors.form}
+            actionLabel="Verify Email"
+            onAction={handleVerifyEmail}
+          />
+        )}
+
         <AuthInput
           id="email"
           label="Email address"

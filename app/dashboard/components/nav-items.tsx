@@ -1,4 +1,4 @@
-import { House, Inbox, Send, Book, Settings, Megaphone } from "lucide-react";
+import { House, Inbox, Send, Book, Settings } from "lucide-react";
 
 export const NAV_ITEMS = [
   {

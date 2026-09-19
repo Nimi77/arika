@@ -132,8 +132,8 @@ export default function LinkPlatformsStep({
             sm:text-base
           "
         >
-          Securely connect your accounts through Meta's official platform so
-          that Arika can manage your customer conversations.
+          Securely connect your accounts through Meta&apos;s official platform
+          so that Arika can manage your customer conversations.
         </p>
       </div>
 
