@@ -7,11 +7,14 @@ import { AlertTriangle, CircleCheck, MailCheck } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { apiFetch } from "@/lib/api";
 import ArikaLogo from "../components/ArikaLogo";
+import { useSignupStore } from "@/store/signupStore";
 
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
+
+  const clearSignupData = useSignupStore((state) => state.clearSignupData);
 
   const email = searchParams.get("email") || "";
   const token = searchParams.get("token");
@@ -60,7 +63,7 @@ function VerifyEmailContent() {
             method: "POST",
           },
         );
-
+        clearSignupData();
         setIsVerified(true);
       } catch (err: unknown) {
         /*
@@ -76,6 +79,7 @@ function VerifyEmailContent() {
           /already verified/i.test(apiError?.message || "");
 
         if (alreadyVerified) {
+          clearSignupData();
           setIsAlreadyVerified(true);
           setVerifyError(null);
         } else {
@@ -97,11 +101,7 @@ function VerifyEmailContent() {
    * Start the initial resend cooldown.
    */
   useEffect(() => {
-    if (token || isResendSuccessful) return;
-
-    if (cooldown <= 0) {
-      return;
-    }
+    if (cooldown <= 0) return;
 
     const timer = setInterval(() => {
       setCooldown((prev) => {
@@ -115,7 +115,7 @@ function VerifyEmailContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [cooldown, token, isResendSuccessful]);
+  }, [cooldown]);
 
   /*
    * Send a new verification email.
@@ -145,8 +145,10 @@ function VerifyEmailContent() {
       ]);
 
       setResendEmail(emailToSend);
+      setCooldown(20);
       setIsResendSuccessful(true);
       setIsResendFormOpen(false);
+      setIsResendLoading(false);
     } catch (err: unknown) {
       await minimumVerificationTime;
 
@@ -287,7 +289,7 @@ function VerifyEmailContent() {
             Check Your Email
           </h1>
 
-          <p className="text-sm leading-6 text-(--color-text-subtle) sm:text-base">
+          <p className="text-sm leading-6 text-(--color-text-subtle)">
             We sent a new verification link to{" "}
             <span className="font-medium text-(--color-text-primary)">
               {resendEmail}
@@ -297,11 +299,30 @@ function VerifyEmailContent() {
         </div>
 
         <p
-          className="mt-8 text-center text-sm leading-6 text-(--color-text-subtle)"
+          className="mt-8 text-sm leading-6 text-(--color-text-subtle)"
           role="status"
         >
           Please check your inbox and use the latest verification link.
         </p>
+
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={cooldown > 0 || isResendLoading}
+          aria-disabled={cooldown > 0 || isResendLoading}
+          aria-busy={isResendLoading}
+          className={`mt-6 w-full rounded-full py-4 text-sm font-bold transition-all duration-250 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-action-primary) disabled:cursor-not-allowed ${
+            cooldown > 0 || isResendLoading
+              ? "cursor-not-allowed bg-(--color-bg-surface) text-(--color-text-subtle) opacity-60"
+              : "cursor-pointer bg-(--color-action-primary) text-white hover:bg-(--color-action-primary-hover)"
+          }`}
+        >
+          {isResendLoading
+            ? "Sending verification link..."
+            : cooldown > 0
+              ? `Resend available in ${cooldown}s`
+              : "Resend verification link"}
+        </button>
       </motion.div>
     );
   }

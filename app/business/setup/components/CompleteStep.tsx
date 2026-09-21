@@ -5,6 +5,7 @@ import { useState } from "react";
 import ContinueButton from "./ContinueButton";
 import StepCircles from "./StepCircles";
 import TextField from "./TextField";
+import Link from "next/link";
 
 export type FAQ = {
   question: string;
@@ -56,24 +57,24 @@ export default function CompleteStep({
     setAnswer("");
   }
 
- function handleContinue() {
-   if (question.trim() || answer.trim()) {
-     if (!validateFAQ()) return;
+  function handleContinue() {
+    if (question.trim() || answer.trim()) {
+      if (!validateFAQ()) return;
 
-     const finalFAQs = [
-       ...faqs,
-       {
-         question: question.trim(),
-         answer: answer.trim(),
-       },
-     ];
+      const finalFAQs = [
+        ...faqs,
+        {
+          question: question.trim(),
+          answer: answer.trim(),
+        },
+      ];
 
-     onComplete(finalFAQs);
-     return;
-   }
+      onComplete(finalFAQs);
+      return;
+    }
 
-   onComplete(faqs);
- }
+    onComplete(faqs);
+  }
 
   return (
     <section
@@ -185,9 +186,25 @@ export default function CompleteStep({
         {submitError && (
           <div
             role="alert"
-            className="mt-5 text-sm text-red-600 mb-3 dark:text-(--color-text-error)"
+            aria-live="assertive"
+            className="mt-5 rounded-full max-w-max border border-red-200 bg-red-50 px-4 py-2 dark:border-red-900/40 dark:bg-red-950/20"
           >
-            {submitError}
+            {submitError === "SESSION_EXPIRED" ? (
+              <p className="text-sm leading-6 text-red-700 dark:text-red-400">
+                Your session has expired. Please{" "}
+                <Link
+                  href="/auth/login"
+                  className="font-semibold underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300"
+                >
+                  log in
+                </Link>{" "}
+                again to continue.
+              </p>
+            ) : (
+              <p className="text-sm leading-6 text-red-700 dark:text-red-400">
+                {submitError}
+              </p>
+            )}
           </div>
         )}
 
@@ -195,10 +212,12 @@ export default function CompleteStep({
           <div
             role="status"
             aria-live="polite"
-            className="mt-5 mb-3 text-sm text-(--color-action-primary)"
+            className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-950/20"
           >
-            Your business information has been successfully saved. We’re taking
-            you to your dashboard...
+            <p className="text-sm font-medium leading-6 text-emerald-700 dark:text-emerald-400">
+              Your business information has been successfully saved. We’re
+              taking you to your dashboard...
+            </p>
           </div>
         )}
 

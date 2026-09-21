@@ -19,22 +19,30 @@ function OAuthSuccessContent() {
 
         const response = await apiFetch<{
           data: {
-            setupCompleted: boolean;
+            name: string;
+            industry?: string;
           };
         }>("/business/me");
 
-        if (response.data.setupCompleted) {
+        console.log("business/me response:", response);
+
+        const isSetupCompleted = Boolean(
+          response.data.name || response.data.industry,
+        );
+
+        if (isSetupCompleted) {
           router.replace("/dashboard");
         } else {
           router.replace("/business/setup");
         }
       } catch {
-        router.replace("/business/setup");
+        router.replace("/auth/login");
       }
     }
 
     completeOAuthLogin(accessToken);
   }, [accessToken, router]);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
       {hasMissingAccessToken ? (

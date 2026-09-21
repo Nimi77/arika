@@ -9,6 +9,8 @@ import FormBanner from "../../components/FormBanner";
 import AuthInput from "../../components/AuthInput";
 
 import { apiFetch, storeAuthToken } from "@/lib/api";
+import { useShallow } from "zustand/react/shallow";
+import { useSignupStore } from "@/store/signupStore";
 
 const REQUIREMENTS = [
   {
@@ -36,12 +38,16 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const formData = useSignupStore(
+    useShallow((state) => ({
+      fullName: state.fullName,
+      email: state.email,
+      password: state.password,
+      confirmPassword: state.confirmPassword,
+    })),
+  );
+
+  const updateSignupField = useSignupStore((state) => state.updateSignupField);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [emailExists, setEmailExists] = useState(false);
@@ -69,10 +75,7 @@ export default function RegisterPage() {
       value = value.replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ ]/g, "");
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    updateSignupField(field, value);
 
     setErrors((prev) => {
       if (!prev[field]) return prev;
@@ -124,7 +127,11 @@ export default function RegisterPage() {
         break;
 
       case "password":
-        if (!REQUIREMENTS.every((requirement) => requirement.test(value))) {
+        if (!value) {
+          message = "Password is required";
+        } else if (
+          !REQUIREMENTS.every((requirement) => requirement.test(value))
+        ) {
           message = "Password doesn't meet the requirements";
         }
         break;
@@ -169,7 +176,9 @@ export default function RegisterPage() {
       next.email = "Enter a valid email address, e.g. sarah@example.com";
     }
 
-    if (
+    if (!formData.password) {
+      next.password = "Password is required";
+    } else if (
       !REQUIREMENTS.every((requirement) => requirement.test(formData.password))
     ) {
       next.password = "Password doesn't meet the requirements";
