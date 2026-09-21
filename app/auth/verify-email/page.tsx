@@ -95,7 +95,7 @@ function VerifyEmailContent() {
     }
 
     verify();
-  }, [token]);
+  }, [token, clearSignupData]);
 
   /*
    * Start the initial resend cooldown.
