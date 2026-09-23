@@ -41,20 +41,7 @@ export default function TextField({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="
-          min-h-11 w-full
-          rounded-full
-          border border-transparent
-          bg-(--color-bg-surface)
-          px-4 py-3
-          text-sm text-(--color-text)
-          placeholder:text-neutral-500
-          outline-none
-          transition-colors
-          hover:border-(--color-action-primary)
-          focus:border-(--color-action-primary)
-          focus-visible:outline-none
-        "
+        className="min-h-11 w-full rounded-full border border-transparent bg-(--color-bg-surface) px-4 py-3 text-sm text-(--color-text) placeholder:text-neutral-500 outline-none transition-colors hover:border-(--color-action-primary focus:border-(--color-action-primary) focus-visible:outline-none"
       />
     </div>
   );

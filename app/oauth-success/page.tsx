@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { apiFetch, storeAuthToken } from "@/lib/api";
+import { apiFetch, storeAuthToken, type ApiError } from "@/lib/api";
 
 function OAuthSuccessContent() {
   const router = useRouter();
@@ -19,23 +19,40 @@ function OAuthSuccessContent() {
 
         const response = await apiFetch<{
           data: {
-            name: string;
-            industry?: string;
+            _id: string;
           };
         }>("/business/me");
 
-        console.log("business/me response:", response);
+        // console.log("business/me response:", response);
 
-        const isSetupCompleted = Boolean(
-          response.data.name || response.data.industry,
-        );
+        const isProfileCreated = Boolean(response.data._id);
 
-        if (isSetupCompleted) {
+        if (isProfileCreated) {
           router.replace("/dashboard");
         } else {
           router.replace("/business/setup");
         }
-      } catch {
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          "status" in error &&
+          error.status === 403
+        ) {
+          const apiError = error as ApiError;
+          const message =
+            typeof apiError.body?.message === "string"
+              ? apiError.body.message
+              : apiError.body?.message?.message;
+
+          if (
+            message ===
+            "Please complete your business profile setup before accessing this resource"
+          ) {
+            router.replace("/business/setup");
+            return;
+          }
+        }
+
         router.replace("/auth/login");
       }
     }

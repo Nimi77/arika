@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
-import { NAV_ITEMS } from "./nav-items";
+import { NAV_ITEMS } from "./NavItems";
 import logo from "@/public/logo.svg";
 import { apiFetch } from "@/lib/api";
 
@@ -48,8 +48,8 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-(--color-active-icon)/5 text-(--color-active-icon)"
-                  : "text-(--color-inactive-icon) hover:bg-(--color-bg-surface-hover)"
+                  ? "bg-(--color-active-icon)/5 font-semibold text-(--color-active-icon)"
+                  : "text-(--color-text-secondary) hover:bg-(--color-bg-surface-hover)"
               }`}
             >
               <Icon size={18} />

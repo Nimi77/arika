@@ -15,12 +15,12 @@ export default function QuickActionCard({
 }: QuickActionCardProps) {
   return (
     <div className="rounded-2xl bg-(--color-bg-surface) p-4 flex flex-col lg:items-center sm:flex-row sm:items-center gap-3 sm:gap-4">
-      <div className="flex  flex-col lg:flex-row items-center  gap-3 flex-1 min-w-0">
-        <div className="shrink-0">{icon}</div>
+      <div className="shrink-0">{icon}</div>
+      <div className="flex flex-col items-center gap-3 flex-1 min-w-0">
         <div className="min-w-0">
-          <p className="lg:text-sm text-xs font-semibold text-(--color-text)">
+          <h3 className="lg:text-sm text-xs font-semibold text-(--color-text)">
             {title}
-          </p>
+          </h3>
           <p className="lg:text-xs text-[10px] text-(--color-text-subtle) mt-0.5">
             {description}
           </p>

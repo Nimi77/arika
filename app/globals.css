@@ -23,7 +23,7 @@
   --color-warning: #d97706;
 
   --color-inactive-icon: #525252;
-  --color-active-icon: #635bff --color-action-primary: #635bff;
+  --color-active-icon: #635bff;
 }
 [data-theme="light"] {
   --color-bg-base: #ffffff;
@@ -248,6 +248,17 @@
 }
 .footer-link:hover {
   color: var(--color-action-primary);
+}
+
+/* dashboard knowledge */
+.business-rules-field label {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  margin-bottom: 0.2rem;
+}
+.business-rules-field input {
+  background-color: var(--color-bg-base);
+  padding: 1rem 1.25rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
